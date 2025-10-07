@@ -1,0 +1,131 @@
+TrackBox - Plataforma de Armazenamento e Consulta para Colecionadores de CDs e LPs
+Objetivo do Site:
+
+Permitir que os colecionadores cadastrem, consultem e armazenem suas coleções de CDs, LPs e BoxSets.
+
+Consultar informações detalhadas sobre cada disco (por exemplo, edição, país de origem, itens extras).
+
+Filtrar discos por características específicas, como condição e edição.
+
+Funcionalidades e Requisitos
+Cadastro de Itens:
+
+Cadastrar Discos:
+
+O usuário deve poder cadastrar facilmente os discos que possui.
+
+Ao cadastrar, deve ser perguntado se o item é importado ou nacional.
+
+Se for importado: o usuário deve indicar o país e o continente de origem.
+
+Filtros de pesquisa:
+
+CD, LP ou BoxSet (com mais itens e geralmente edição limitada).
+
+Detalhamento:
+
+Ao cadastrar, o usuário pode informar detalhes sobre o disco, como:
+
+Encarte
+
+Poster
+
+Fotos
+
+Livretos
+
+Para LPs japoneses, incluir itens extras típicos como:
+
+Disco adicional
+
+Letras e posters.
+
+Edição (Primeira edição ou reedição).
+
+Busca e Pesquisa:
+
+Ao pesquisar, o site deve trazer apenas os itens cadastrados pelo usuário, para não misturar com itens que ele não possui.
+
+Consulta de informações:
+
+Buscar automaticamente as informações do disco na internet usando o código do CD ou LP.
+
+Exibir detalhes como ano de lançamento, gravadora, nome do disco, artistas.
+
+Caso o disco seja importado, verificar informações como:
+
+Nome dos artistas/bandas
+
+Tradução de letras, por exemplo, no caso de LPs japoneses (letra em português e tradução para japonês).
+
+Incluir um campo de observações para detalhes adicionais (por exemplo, raridade, características específicas).
+
+Características Específicas:
+
+Ao cadastrar ou consultar um item, o sistema deve permitir que o usuário selecione a condição do disco, utilizando as seguintes classificações:
+
+G - Bom
+
+G+ - Bom+
+
+VG - Muito Bom
+
+VG+ - Muito Bom+
+
+E - Excelente
+
+E+ - Excelente+
+
+Mint - Perfeito
+
+Status de Lacrado:
+
+O sistema deve permitir registrar se o disco está lacrado ou selado.
+
+Evitar falsificações:
+
+O sistema deve alertar para discos falsificados (exemplo: discos russos, argentinos e chineses).
+
+BoxSet:
+
+Para BoxSets, permitir cadastrar edições limitadas e enumeradas, com destaque para os brindes incluídos.
+
+BoxSets podem ser de CDs ou LPs e possuem itens extras além dos discos.
+
+Fluxo do Usuário:
+
+Ao acessar o site: O usuário é convidado a cadastrar os discos que já possui, com foco em uma interface simples e objetiva.
+
+Cadastro de Disco:
+
+O usuário escolhe entre CD, LP ou BoxSet.
+
+Preenche informações básicas como:
+
+Artista
+
+Nome do disco
+
+Ano de lançamento
+
+Gravadora
+
+País de origem
+
+O usuário pode incluir observações e fotos, caso tenha.
+
+Consulta de Disco:
+
+O usuário pesquisa os discos cadastrados por filtros (CD, LP, BoxSet).
+
+O site exibe informações sobre cada disco, comparando com o que o usuário já possui, e oferecendo sugestões de itens faltantes.
+
+Possíveis Melhorias/Adições Futuras:
+
+Cadastro Automático por Código: Implementar a funcionalidade de cadastrar automaticamente os discos ao escanear o código de barras ou inserir o código do disco.
+
+Sugestões de Aquisição: Após o usuário cadastrar seu disco, sugerir novas aquisições baseadas no que ele já possui ou nas lacunas na coleção dele.
+
+Integração com Plataformas de Venda: Conectar o site com plataformas de venda e leilões para permitir que os colecionadores comprem ou vendam discos diretamente.
+
+Site: https://www.discogs.com/search
