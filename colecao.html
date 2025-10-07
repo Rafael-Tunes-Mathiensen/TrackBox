@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Disco - TrackBox</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #9E4CE6;
+            --color-secondary: #8F5DBB;
+            --color-dark: #1E0138;
+            --color-background: #36303C;
+            --color-light: #f5f5f5;
+            --color-white: #ffffff;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-light);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--color-dark) 0%, var(--color-background) 100%);
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 20px rgba(158, 76, 230, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .nav {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: var(--color-light);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--color-primary);
+            background: rgba(158, 76, 230, 0.1);
+        }
+
+        .main {
+            padding: 3rem 0;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary);
+        }
+
+        .page-subtitle {
+            color: var(--color-light);
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            background: rgba(30, 1, 56, 0.5);
+            border: 1px solid rgba(158, 76, 230, 0.2);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section-title {
+            font-size: 1.3rem;
+            color: var(--color-secondary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(158, 76, 230, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--color-secondary);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.875rem;
+            background: rgba(54, 48, 60, 0.8);
+            border: 1px solid rgba(158, 76, 230, 0.3);
+            border-radius: 8px;
+            color: var(--color-light);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(158, 76, 230, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-radio-group,
+        .form-checkbox-group {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .form-radio-label,
+        .form-checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            color: var(--color-light);
+        }
+
+        .form-radio-label input[type="radio"],
+        .form-checkbox-label input[type="checkbox"] {
+            accent-color: var(--color-primary);
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: var(--transition);
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: var(--color-white);
+            box-shadow: 0 4px 15px rgba(158, 76, 230, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(158, 76, 230, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--color-primary);
+            border: 2px solid var(--color-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-primary);
+            color: var(--color-white);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .alert-success {
+            background: rgba(76, 230, 126, 0.1);
+            border: 1px solid rgba(76, 230, 126, 0.3);
+            color: #4CE67E;
+        }
+
+        .alert-error {
+            background: rgba(230, 76, 76, 0.1);
+            border: 1px solid rgba(230, 76, 76, 0.3);
+            color: #E64C4C;
+        }
+
+        .alert-warning {
+            background: rgba(230, 180, 76, 0.1);
+            border: 1px solid rgba(230, 180, 76, 0.3);
+            color: #E6B44C;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>TrackBox</h1>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Início</a>
+                <a href="cadastrar.html" class="nav-link active">Cadastrar</a>
+                <a href="colecao.html" class="nav-link">Minha Coleção</a>
+                <a href="pesquisar.html" class="nav-link">Pesquisar</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <h1 class="page-title">Cadastrar Disco</h1>
+            <p class="page-subtitle">Adicione um novo item à sua coleção</p>
+
+            <div id="alertContainer"></div>
+
+            <form id="discoForm" class="form-container">
+                <!-- Seção: Informações Básicas -->
+                <div class="form-section">
+                    <h2 class="form-section-title">📀 Informações Básicas</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Tipo de Mídia *</label>
+                            <div class="form-radio-group">
+                                <label class="form-radio-label">
+                                    <input type="radio" name="tipo" value="CD" checked>
+                                    <span>CD</span>
+                                </label>
+                                <label class="form-radio-label">
+                                    <input type="radio" name="tipo" value="LP">
+                                    <span>LP</span>
+                                </label>
+                                <label class="form-radio-label">
+                                    <input type="radio" name="tipo" value="BoxSet">
+                                    <span>BoxSet</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="artista">Artista/Banda *</label>
+                            <input type="text" id="artista" class="form-input" placeholder="Nome do artista ou banda" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="album">Nome do Álbum *</label>
+                            <input type="text" id="album" class="form-input" placeholder="Nome do álbum" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="ano">Ano de Lançamento *</label>
+                            <input type="number" id="ano" class="form-input" placeholder="2024" min="1900" max="2025" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="gravadora">Gravadora</label>
+                            <input type="text" id="gravadora" class="form-input" placeholder="Nome da gravadora">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção: Origem -->
+                <div class="form-section">
+                    <h2 class="form-section-title">🌍 Origem</h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Origem do Disco *</label>
+                        <div class="form-radio-group">
+                            <label class="form-radio-label">
+                                <input type="radio" name="origem" value="Nacional" checked>
+                                <span>Nacional</span>
+                            </label>
+                            <label class="form-radio-label">
+                                <input type="radio" name="origem" value="Importado">
+                                <span>Importado</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="importadoFields" class="hidden">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="pais">País de Origem</label>
+                                <select id="pais" class="form-select">
+                                    <option value="">Selecione o país</option>
+                                    <option value="EUA">Estados Unidos</option>
+                                    <option value="Japão">Japão</option>
+                                    <option value="Reino Unido">Reino Unido</option>
+                                    <option value="Alemanha">Alemanha</option>
+                                    <option value="França">França</option>
+                                    <option value="Itália">Itália</option>
+                                    <option value="Argentina">Argentina</option>
+                                    <option value="Rússia">Rússia</option>
+                                    <option value="China">China</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="continente">Continente</label>
+                                <select id="continente" class="form-select">
+                                    <option value="">Selecione o continente</option>
+                                    <option value="América do Norte">América do Norte</option>
+                                    <option value="América do Sul">América do Sul</option>
+                                    <option value="Europa">Europa</option>
+                                    <option value="Ásia">Ásia</option>
+                                    <option value="Oceania">Oceania</option>
+                                    <option value="África">África</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="alertFalsificacao" class="alert alert-warning hidden">
+                            ⚠️ <strong>Atenção!</strong> Discos da Rússia, Argentina e China podem ser falsificações. Verifique a autenticidade antes de adicionar à coleção.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção: Edição e Condição -->
+                <div class="form-section">
+                    <h2 class="form-section-title">⭐ Edição e Condição</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Edição *</label>
+                            <div class="form-radio-group">
+                                <label class="form-radio-label">
+                                    <input type="radio" name="edicao" value="Primeira Edição" checked>
+                                    <span>Primeira Edição</span>
+                                </label>
+                                <label class="form-radio-label">
+                                    <input type="radio" name="edicao" value="Reedição">
+                                    <span>Reedição</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="condicao">Condição *</label>
+                            <select id="condicao" class="form-select" required>
+                                <option value="">Selecione a condição</option>
+                                <option value="Mint">Mint - Perfeito</option>
+                                <option value="E+">E+ - Excelente+</option>
+                                <option value="E">E - Excelente</option>
+                                <option value="VG+">VG+ - Muito Bom+</option>
+                                <option value="VG">VG - Muito Bom</option>
+                                <option value="G+">G+ - Bom+</option>
+                                <option value="G">G - Bom</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <input type="checkbox" id="lacrado">
+                                Lacrado/Selado
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção: Itens Extras -->
+                <div class="form-section">
+                    <h2 class="form-section-title">📦 Itens Extras</h2>
+                    
+                    <div class="form-checkbox-group">
+                        <label class="form-checkbox-label">
+                            <input type="checkbox" name="extras" value="Encarte">
+                            <span>Encarte</span>
+                        </label>
+                        <label class="form-checkbox-label">
+                            <input type="checkbox" name="extras" value="Poster">
+                            <span>Poster</span>
+                        </label>
+                        <label class="form-checkbox-label">
+                            <input type="checkbox" name="extras" value="Fotos">
+                            <span>Fotos</span>
+                        </label>
+                        <label class="form-checkbox-label">
+                            <input type="checkbox" name="extras" value="Livreto">
+                            <span>Livreto</span>
+                        </label>
+                        <label class="form-checkbox-label">
+                            <input type="checkbox" name="extras" value="Disco Adicional">
+                            <span>Disco Adicional</span>
+                        </label>
+                        <label class="form-checkbox-label">
+                            <input type="checkbox" name="extras" value="Letras">
+                            <span>Letras</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Seção: BoxSet -->
+                <div id="boxsetFields" class="form-section hidden">
+                    <h2 class="form-section-title">📦 Informações do BoxSet</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <input type="checkbox" id="edicaoLimitada">
+                                Edição Limitada
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="numeroEdicao">Número da Edição (se aplicável)</label>
+                            <input type="text" id="numeroEdicao" class="form-input" placeholder="Ex: 1234/5000">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="brindos">Brindes Incluídos</label>
+                        <textarea id="brindos" class="form-textarea" placeholder="Liste os brindes incluídos no BoxSet"></textarea>
+                    </div>
+                </div>
+
+                <!-- Seção: Observações -->
+                <div class="form-section">
+                    <h2 class="form-section-title">📝 Observações</h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="observacoes">Observações Adicionais</label>
+                        <textarea id="observacoes" class="form-textarea" placeholder="Adicione informações sobre raridade, características especiais, etc."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='colecao.html'">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Disco</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        const discoForm = document.getElementById('discoForm');
+        const origemRadios = document.querySelectorAll('input[name="origem"]');
+        const tipoRadios = document.querySelectorAll('input[name="tipo"]');
+        const importadoFields = document.getElementById('importadoFields');
+        const boxsetFields = document.getElementById('boxsetFields');
+        const paisSelect = document.getElementById('pais');
+        const alertFalsificacao = document.getElementById('alertFalsificacao');
+        const alertContainer = document.getElementById('alertContainer');
+
+        // Mostrar/ocultar campos de importado
+        origemRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'Importado') {
+                    importadoFields.classList.remove('hidden');
+                } else {
+                    importadoFields.classList.add('hidden');
+                    alertFalsificacao.classList.add('hidden');
+                }
+            });
+        });
+
+        // Mostrar/ocultar campos de BoxSet
+        tipoRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'BoxSet') {
+                    boxsetFields.classList.remove('hidden');
+                } else {
+                    boxsetFields.classList.add('hidden');
+                }
+            });
+        });
+
+        // Alertar sobre países com falsificações
+        paisSelect.addEventListener('change', (e) => {
+            const paisesAlerta = ['Rússia', 'Argentina', 'China'];
+            if (paisesAlerta.includes(e.target.value)) {
+                alertFalsificacao.classList.remove('hidden');
+            } else {
+                alertFalsificacao.classList.add('hidden');
+            }
+        });
+
+        function showAlert(message, type) {
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Submeter formulário
+        discoForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Verificar autenticação
+            const session = localStorage.getItem('trackbox_session') || sessionStorage.getItem('trackbox_session');
+            if (!session) {
+                showAlert('Você precisa estar logado para cadastrar discos!', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+
+            const sessionData = JSON.parse(session);
+
+            // Coletar dados do formulário
+            const tipo = document.querySelector('input[name="tipo"]:checked').value;
+            const artista = document.getElementById('artista').value;
+            const album = document.getElementById('album').value;
+            const ano = document.getElementById('ano').value;
+            const gravadora = document.getElementById('gravadora').value;
+            const origem = document.querySelector('input[name="origem"]:checked').value;
+            const edicao = document.querySelector('input[name="edicao"]:checked').value;
+            const condicao = document.getElementById('condicao').value;
+            const lacrado = document.getElementById('lacrado').checked;
+
+            // Campos condicionais
+            const pais = origem === 'Importado' ? document.getElementById('pais').value : '';
+            const continente = origem === 'Importado' ? document.getElementById('continente').value : '';
+
+            // Itens extras
+            const extrasCheckboxes = document.querySelectorAll('input[name="extras"]:checked');
+            const extras = Array.from(extrasCheckboxes).map(cb => cb.value);
+
+            // BoxSet
+            const edicaoLimitada = tipo === 'BoxSet' ? document.getElementById('edicaoLimitada').checked : false;
+            const numeroEdicao = tipo === 'BoxSet' ? document.getElementById('numeroEdicao').value : '';
+            const brindos = tipo === 'BoxSet' ? document.getElementById('brindos').value : '';
+
+            const observacoes = document.getElementById('observacoes').value;
+
+            // Criar objeto do disco
+            const disco = {
+                id: Date.now(),
+                userId: sessionData.userId,
+                tipo,
+                artista,
+                album,
+                ano,
+                gravadora,
+                origem,
+                pais,
+                continente,
+                edicao,
+                condicao,
+                lacrado,
+                extras,
+                edicaoLimitada,
+                numeroEdicao,
+                brindos,
+                observacoes,
+                cadastradoEm: new Date().toISOString()
+            };
+
+            // Salvar no localStorage
+            const discos = JSON.parse(localStorage.getItem('trackbox_discos') || '[]');
+            discos.push(disco);
+            localStorage.setItem('trackbox_discos', JSON.stringify(discos));
+
+            showAlert('Disco cadastrado com sucesso!', 'success');
+
+            setTimeout(() => {
+                window.location.href = 'colecao.html';
+            }, 2000);
+        });
+
+        // Verificar autenticação ao carregar
+        window.addEventListener('load', () => {
+            const session = localStorage.getItem('trackbox_session') || sessionStorage.getItem('trackbox_session');
+            if (!session) {
+                showAlert('Você precisa estar logado para acessar esta página!', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+            }
+        });
+    </script>
+</body>
+</html>

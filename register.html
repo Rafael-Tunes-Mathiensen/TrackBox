@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Conta - TrackBox</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #9E4CE6;
+            --color-secondary: #8F5DBB;
+            --color-dark: #1E0138;
+            --color-background: #36303C;
+            --color-text: #5E5566;
+            --color-light: #f5f5f5;
+            --color-white: #ffffff;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--color-dark) 0%, var(--color-background) 100%);
+            color: var(--color-light);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .register-container {
+            background: rgba(30, 1, 56, 0.5);
+            border: 1px solid rgba(158, 76, 230, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-container h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-container p {
+            color: var(--color-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--color-secondary);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem;
+            background: rgba(54, 48, 60, 0.8);
+            border: 1px solid rgba(158, 76, 230, 0.3);
+            border-radius: 8px;
+            color: var(--color-light);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(158, 76, 230, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: var(--transition);
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: var(--color-white);
+            box-shadow: 0 4px 15px rgba(158, 76, 230, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(158, 76, 230, 0.5);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            color: var(--color-secondary);
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: rgba(158, 76, 230, 0.2);
+        }
+
+        .divider::before {
+            left: 0;
+        }
+
+        .divider::after {
+            right: 0;
+        }
+
+        .link-text {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--color-light);
+        }
+
+        .link-text a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .link-text a:hover {
+            color: var(--color-secondary);
+        }
+
+        .alert {
+            padding: 0.875rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .alert-success {
+            background: rgba(76, 230, 126, 0.1);
+            border: 1px solid rgba(76, 230, 126, 0.3);
+            color: #4CE67E;
+        }
+
+        .alert-error {
+            background: rgba(230, 76, 76, 0.1);
+            border: 1px solid rgba(230, 76, 76, 0.3);
+            color: #E64C4C;
+        }
+
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: rgba(158, 76, 230, 0.2);
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: var(--transition);
+        }
+
+        .strength-weak { background: #E64C4C; width: 33%; }
+        .strength-medium { background: #E6B44C; width: 66%; }
+        .strength-strong { background: #4CE67E; width: 100%; }
+
+        @media (max-width: 768px) {
+            .register-container {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="logo-container">
+            <h1>TrackBox</h1>
+            <p>Crie sua conta</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label class="form-label" for="name">Nome Completo</label>
+                <input type="text" id="name" class="form-input" placeholder="Digite seu nome completo" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">E-mail</label>
+                <input type="email" id="email" class="form-input" placeholder="seu@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Senha</label>
+                <input type="password" id="password" class="form-input" placeholder="Crie uma senha forte" required>
+                <div class="password-strength">
+                    <div class="strength-bar">
+                        <div id="strengthFill" class="strength-fill"></div>
+                    </div>
+                    <span id="strengthText"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="confirmPassword">Confirmar Senha</label>
+                <input type="password" id="confirmPassword" class="form-input" placeholder="Digite a senha novamente" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Criar Conta</button>
+        </form>
+
+        <div class="divider">ou</div>
+
+        <div class="link-text">
+            Já tem uma conta? <a href="login.html">Fazer login</a>
+        </div>
+    </div>
+
+    <script>
+        const registerForm = document.getElementById('registerForm');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+        const alertContainer = document.getElementById('alertContainer');
+
+        // Verificar força da senha
+        passwordInput.addEventListener('input', (e) => {
+            const password = e.target.value;
+            const strength = checkPasswordStrength(password);
+            
+            strengthFill.className = 'strength-fill';
+            
+            if (strength.score === 0) {
+                strengthText.textContent = '';
+            } else if (strength.score <= 2) {
+                strengthFill.classList.add('strength-weak');
+                strengthText.textContent = 'Senha fraca';
+                strengthText.style.color = '#E64C4C';
+            } else if (strength.score === 3) {
+                strengthFill.classList.add('strength-medium');
+                strengthText.textContent = 'Senha média';
+                strengthText.style.color = '#E6B44C';
+            } else {
+                strengthFill.classList.add('strength-strong');
+                strengthText.textContent = 'Senha forte';
+                strengthText.style.color = '#4CE67E';
+            }
+        });
+
+        function checkPasswordStrength(password) {
+            let score = 0;
+            
+            if (password.length >= 8) score++;
+            if (password.length >= 12) score++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+            if (/\d/.test(password)) score++;
+            if (/[^a-zA-Z\d]/.test(password)) score++;
+            
+            return { score };
+        }
+
+        function showAlert(message, type) {
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Validações
+            if (password !== confirmPassword) {
+                showAlert('As senhas não coincidem!', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showAlert('A senha deve ter pelo menos 6 caracteres!', 'error');
+                return;
+            }
+            
+            // Simular salvamento (em produção, fazer requisição ao backend)
+            const users = JSON.parse(localStorage.getItem('trackbox_users') || '[]');
+            
+            // Verificar se email já existe
+            if (users.find(u => u.email === email)) {
+                showAlert('Este e-mail já está cadastrado!', 'error');
+                return;
+            }
+            
+            // Adicionar novo usuário
+            users.push({
+                id: Date.now(),
+                name,
+                email,
+                password, // Em produção, usar hash
+                createdAt: new Date().toISOString()
+            });
+            
+            localStorage.setItem('trackbox_users', JSON.stringify(users));
+            
+            showAlert('Conta criada com sucesso! Redirecionando...', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
