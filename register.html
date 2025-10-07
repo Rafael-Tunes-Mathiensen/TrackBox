@@ -4,63 +4,154 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar Conta - TrackBox</title>
-    <link rel="stylesheet" href="assets/css/register.css">
+    <link rel="stylesheet" href="assets/css/auth.css">
     <link rel="icon" type="image/x-icon" href="assets/img/TrackBox.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="register-container">
-        <div class="logo-container">
-            <h1>TrackBox</h1>
-            <p>Crie sua conta</p>
+    <div class="auth-background">
+        <div class="vinyl-animation">
+            <div class="vinyl vinyl-1"></div>
+            <div class="vinyl vinyl-2"></div>
+            <div class="vinyl vinyl-3"></div>
         </div>
+    </div>
 
-        <div id="alertContainer"></div>
-
-        <form id="registerForm">
-            <div class="form-group">
-                <label class="form-label" for="name">Nome Completo</label>
-                <input type="text" id="name" class="form-input" placeholder="Digite seu nome completo" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="email">E-mail</label>
-                <input type="email" id="email" class="form-input" placeholder="seu@email.com" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="password">Senha</label>
-                <input type="password" id="password" class="form-input" placeholder="Crie uma senha forte" required>
-                <div class="password-strength">
-                    <div class="strength-bar">
-                        <div id="strengthFill" class="strength-fill"></div>
-                    </div>
-                    <span id="strengthText"></span>
+    <div class="auth-container">
+        <div class="auth-card register-card">
+            <div class="logo-container">
+                <img src="assets/img/TrackBoxLogo.png" alt="TrackBox Logo" class="logo-img">
+                <div class="logo-text">
+                    <h1>TrackBox</h1>
+                    <p>Crie sua conta</p>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="confirmPassword">Confirmar Senha</label>
-                <input type="password" id="confirmPassword" class="form-input" placeholder="Digite a senha novamente" required>
+            <div id="alertContainer"></div>
+
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label" for="name">
+                        <i class="fas fa-user"></i>
+                        Nome Completo
+                    </label>
+                    <input type="text" id="name" class="form-input" placeholder="Digite seu nome completo" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">
+                        <i class="fas fa-envelope"></i>
+                        E-mail
+                    </label>
+                    <input type="email" id="email" class="form-input" placeholder="seu@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">
+                        <i class="fas fa-lock"></i>
+                        Senha
+                    </label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" class="form-input" placeholder="Crie uma senha forte" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-bar">
+                            <div id="strengthFill" class="strength-fill"></div>
+                        </div>
+                        <div class="strength-info">
+                            <span id="strengthText"></span>
+                            <div class="strength-requirements">
+                                <div class="requirement" id="req-length">
+                                    <i class="fas fa-times"></i>
+                                    <span>Pelo menos 8 caracteres</span>
+                                </div>
+                                <div class="requirement" id="req-case">
+                                    <i class="fas fa-times"></i>
+                                    <span>Maiúsculas e minúsculas</span>
+                                </div>
+                                <div class="requirement" id="req-number">
+                                    <i class="fas fa-times"></i>
+                                    <span>Pelo menos um número</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="confirmPassword">
+                        <i class="fas fa-lock"></i>
+                        Confirmar Senha
+                    </label>
+                    <div class="password-wrapper">
+                        <input type="password" id="confirmPassword" class="form-input" placeholder="Digite a senha novamente" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div id="passwordMatch" class="password-match"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="terms" required>
+                        <span class="checkmark"></span>
+                        <span>Aceito os <a href="#" class="terms-link">termos de uso</a> e <a href="#" class="terms-link">política de privacidade</a></span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i>
+                    Criar Conta
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>ou</span>
             </div>
 
-            <button type="submit" class="btn btn-primary">Criar Conta</button>
-        </form>
+            <div class="link-text">
+                Já tem uma conta? 
+                <a href="login.html">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Fazer login
+                </a>
+            </div>
 
-        <div class="divider">ou</div>
-
-        <div class="link-text">
-            Já tem uma conta? <a href="login.html">Fazer login</a>
+            <div class="home-link">
+                <a href="index.html">
+                    <i class="fas fa-arrow-left"></i>
+                    Voltar para o início
+                </a>
+            </div>
         </div>
     </div>
 
     <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.parentElement.querySelector('.password-toggle i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
         const registerForm = document.getElementById('registerForm');
         const passwordInput = document.getElementById('password');
         const confirmPasswordInput = document.getElementById('confirmPassword');
         const strengthFill = document.getElementById('strengthFill');
         const strengthText = document.getElementById('strengthText');
         const alertContainer = document.getElementById('alertContainer');
+        const passwordMatch = document.getElementById('passwordMatch');
 
         // Verificar força da senha
         passwordInput.addEventListener('input', (e) => {
@@ -69,22 +160,60 @@
             
             strengthFill.className = 'strength-fill';
             
+            // Update requirements
+            updateRequirement('req-length', password.length >= 8);
+            updateRequirement('req-case', /[a-z]/.test(password) && /[A-Z]/.test(password));
+            updateRequirement('req-number', /\d/.test(password));
+            
             if (strength.score === 0) {
                 strengthText.textContent = '';
+                strengthText.className = '';
             } else if (strength.score <= 2) {
                 strengthFill.classList.add('strength-weak');
                 strengthText.textContent = 'Senha fraca';
-                strengthText.style.color = '#E64C4C';
+                strengthText.className = 'strength-weak-text';
             } else if (strength.score === 3) {
                 strengthFill.classList.add('strength-medium');
                 strengthText.textContent = 'Senha média';
-                strengthText.style.color = '#E6B44C';
+                strengthText.className = 'strength-medium-text';
             } else {
                 strengthFill.classList.add('strength-strong');
                 strengthText.textContent = 'Senha forte';
-                strengthText.style.color = '#4CE67E';
+                strengthText.className = 'strength-strong-text';
             }
         });
+
+        // Verificar confirmação de senha
+        confirmPasswordInput.addEventListener('input', (e) => {
+            const password = passwordInput.value;
+            const confirmPassword = e.target.value;
+            
+            if (confirmPassword === '') {
+                passwordMatch.innerHTML = '';
+                return;
+            }
+            
+            if (password === confirmPassword) {
+                passwordMatch.innerHTML = '<i class="fas fa-check-circle"></i> <span>Senhas coincidem</span>';
+                passwordMatch.className = 'password-match match-success';
+            } else {
+                passwordMatch.innerHTML = '<i class="fas fa-times-circle"></i> <span>Senhas não coincidem</span>';
+                passwordMatch.className = 'password-match match-error';
+            }
+        });
+
+        function updateRequirement(id, met) {
+            const element = document.getElementById(id);
+            const icon = element.querySelector('i');
+            
+            if (met) {
+                element.classList.add('met');
+                icon.className = 'fas fa-check';
+            } else {
+                element.classList.remove('met');
+                icon.className = 'fas fa-times';
+            }
+        }
 
         function checkPasswordStrength(password) {
             let score = 0;
@@ -99,9 +228,24 @@
         }
 
         function showAlert(message, type) {
-            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            const alertHTML = `
+                <div class="alert alert-${type}">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            alertContainer.innerHTML = alertHTML;
+            
+            // Auto-hide alert
             setTimeout(() => {
-                alertContainer.innerHTML = '';
+                const alert = alertContainer.querySelector('.alert');
+                if (alert) {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        alertContainer.innerHTML = '';
+                    }, 300);
+                }
             }, 5000);
         }
 
@@ -112,43 +256,73 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
+            const terms = document.getElementById('terms').checked;
             
             // Validações
+            if (!terms) {
+                showAlert('Você deve aceitar os termos de uso!', 'error');
+                return;
+            }
+            
             if (password !== confirmPassword) {
                 showAlert('As senhas não coincidem!', 'error');
                 return;
             }
             
-            if (password.length < 6) {
-                showAlert('A senha deve ter pelo menos 6 caracteres!', 'error');
+            if (password.length < 8) {
+                showAlert('A senha deve ter pelo menos 8 caracteres!', 'error');
                 return;
             }
             
-            // Simular salvamento (em produção, fazer requisição ao backend)
-            const users = JSON.parse(localStorage.getItem('trackbox_users') || '[]');
+            // Show loading state
+            const submitBtn = registerForm.querySelector('.btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando conta...';
+            submitBtn.disabled = true;
             
-            // Verificar se email já existe
-            if (users.find(u => u.email === email)) {
-                showAlert('Este e-mail já está cadastrado!', 'error');
-                return;
-            }
-            
-            // Adicionar novo usuário
-            users.push({
-                id: Date.now(),
-                name,
-                email,
-                password, // Em produção, usar hash
-                createdAt: new Date().toISOString()
+            // Simulate API delay
+            setTimeout(() => {
+                // Simular salvamento (em produção, fazer requisição ao backend)
+                const users = JSON.parse(localStorage.getItem('trackbox_users') || '[]');
+                
+                // Verificar se email já existe
+                if (users.find(u => u.email === email)) {
+                    showAlert('Este e-mail já está cadastrado!', 'error');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+                
+                // Adicionar novo usuário
+                users.push({
+                    id: Date.now(),
+                    name,
+                    email,
+                    password, // Em produção, usar hash
+                    createdAt: new Date().toISOString()
+                });
+                
+                localStorage.setItem('trackbox_users', JSON.stringify(users));
+                
+                showAlert('Conta criada com sucesso! Redirecionando...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            }, 1500);
+        });
+
+        // Add floating animation to form elements
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
             });
             
-            localStorage.setItem('trackbox_users', JSON.stringify(users));
-            
-            showAlert('Conta criada com sucesso! Redirecionando...', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 2000);
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentElement.classList.remove('focused');
+                }
+            });
         });
     </script>
 </body>

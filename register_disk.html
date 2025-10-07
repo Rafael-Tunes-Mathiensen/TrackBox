@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Disco - TrackBox</title>
+    <link rel="icon" type="image/x-icon" href="assets/img/TrackBox.ico">
+    <link rel="stylesheet" href="assets/css/register_disk.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="page-background">
+        <div class="vinyl-animation">
+            <div class="vinyl vinyl-1"></div>
+            <div class="vinyl vinyl-2"></div>
+            <div class="vinyl vinyl-3"></div>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <img src="assets/img/TrackBoxLogo.png" alt="TrackBox Logo" class="logo-img">
+                <div class="logo-text">
+                    <h1>TrackBox</h1>
+                    <span class="tagline">Organize sua coleção musical</span>
+                </div>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </a>
+                <a href="register.html" class="nav-link active">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Cadastrar</span>
+                </a>
+                <a href="colecao.html" class="nav-link">
+                    <i class="fas fa-compact-disc"></i>
+                    <span>Minha Coleção</span>
+                </a>
+                <a href="pesquisar.php" class="nav-link">
+                    <i class="fas fa-search"></i>
+                    <span>Pesquisar</span>
+                </a>
+            </nav>
+            <div class="user-menu">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userName">Usuário</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <div class="page-title-container">
+                    <div class="page-icon">
+                        <i class="fas fa-compact-disc"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">Cadastrar Disco</h1>
+                        <p class="page-subtitle">Adicione um novo item à sua coleção musical</p>
+                    </div>
+                </div>
+                <div class="progress-indicator">
+                    <div class="progress-step active" data-step="1">
+                        <i class="fas fa-music"></i>
+                        <span>Básico</span>
+                    </div>
+                    <div class="progress-step" data-step="2">
+                        <i class="fas fa-globe"></i>
+                        <span>Origem</span>
+                    </div>
+                    <div class="progress-step" data-step="3">
+                        <i class="fas fa-star"></i>
+                        <span>Condição</span>
+                    </div>
+                    <div class="progress-step" data-step="4">
+                        <i class="fas fa-box"></i>
+                        <span>Extras</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <form id="discoForm" class="form-container">
+                <!-- Step 1: Informações Básicas -->
+                <div class="form-step active" data-step="1">
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-music"></i>
+                                Informações Básicas
+                            </h2>
+                            <p class="section-description">Dados principais do seu disco</p>
+                        </div>
+                        
+                        <div class="media-type-selector">
+                            <div class="media-option" data-type="CD">
+                                <div class="media-icon">
+                                    <i class="fas fa-compact-disc"></i>
+                                </div>
+                                <div class="media-info">
+                                    <h3>CD</h3>
+                                    <p>Compact Disc</p>
+                                </div>
+                                <input type="radio" name="tipo" value="CD" checked>
+                            </div>
+                            <div class="media-option" data-type="LP">
+                                <div class="media-icon">
+                                    <i class="fas fa-record-vinyl"></i>
+                                </div>
+                                <div class="media-info">
+                                    <h3>LP</h3>
+                                    <p>Long Play Vinyl</p>
+                                </div>
+                                <input type="radio" name="tipo" value="LP">
+                            </div>
+                            <div class="media-option" data-type="BoxSet">
+                                <div class="media-icon">
+                                    <i class="fas fa-box-open"></i>
+                                </div>
+                                <div class="media-info">
+                                    <h3>BoxSet</h3>
+                                    <p>Edição Especial</p>
+                                </div>
+                                <input type="radio" name="tipo" value="BoxSet">
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="artista">
+                                    <i class="fas fa-microphone"></i>
+                                    Artista/Banda *
+                                </label>
+                                <input type="text" id="artista" class="form-input" placeholder="Nome do artista ou banda" required>
+                                <div class="input-suggestions" id="artistaSuggestions"></div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="album">
+                                    <i class="fas fa-album"></i>
+                                    Nome do Álbum *
+                                </label>
+                                <input type="text" id="album" class="form-input" placeholder="Nome do álbum" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="ano">
+                                    <i class="fas fa-calendar"></i>
+                                    Ano de Lançamento *
+                                </label>
+                                <input type="number" id="ano" class="form-input" placeholder="2024" min="1900" max="2025" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="gravadora">
+                                    <i class="fas fa-building"></i>
+                                    Gravadora
+                                </label>
+                                <input type="text" id="gravadora" class="form-input" placeholder="Nome da gravadora">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Origem -->
+                <div class="form-step" data-step="2">
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-globe"></i>
+                                Origem do Disco
+                            </h2>
+                            <p class="section-description">Informações sobre a procedência</p>
+                        </div>
+                        
+                        <div class="origin-selector">
+                            <div class="origin-option" data-origin="Nacional">
+                                <div class="origin-icon">
+                                    <i class="fas fa-flag"></i>
+                                </div>
+                                <div class="origin-info">
+                                    <h3>Nacional</h3>
+                                    <p>Produzido no Brasil</p>
+                                </div>
+                                <input type="radio" name="origem" value="Nacional" checked>
+                            </div>
+                            <div class="origin-option" data-origin="Importado">
+                                <div class="origin-icon">
+                                    <i class="fas fa-plane"></i>
+                                </div>
+                                <div class="origin-info">
+                                    <h3>Importado</h3>
+                                    <p>Produzido em outro país</p>
+                                </div>
+                                <input type="radio" name="origem" value="Importado">
+                            </div>
+                        </div>
+
+                        <div id="importadoFields" class="import-fields hidden">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label" for="pais">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        País de Origem
+                                    </label>
+                                    <select id="pais" class="form-select">
+                                        <option value="">Selecione o país</option>
+                                        <option value="EUA">🇺🇸 Estados Unidos</option>
+                                        <option value="Japão">🇯🇵 Japão</option>
+                                        <option value="Reino Unido">🇬🇧 Reino Unido</option>
+                                        <option value="Alemanha">🇩🇪 Alemanha</option>
+                                        <option value="França">🇫🇷 França</option>
+                                        <option value="Itália">🇮🇹 Itália</option>
+                                        <option value="Argentina">🇦🇷 Argentina</option>
+                                        <option value="Rússia">🇷🇺 Rússia</option>
+                                        <option value="China">🇨🇳 China</option>
+                                        <option value="Outro">🌍 Outro</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="continente">
+                                        <i class="fas fa-globe-americas"></i>
+                                        Continente
+                                    </label>
+                                    <select id="continente" class="form-select">
+                                        <option value="">Selecione o continente</option>
+                                        <option value="América do Norte">América do Norte</option>
+                                        <option value="América do Sul">América do Sul</option>
+                                        <option value="Europa">Europa</option>
+                                        <option value="Ásia">Ásia</option>
+                                        <option value="Oceania">Oceania</option>
+                                        <option value="África">África</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="alertFalsificacao" class="alert alert-warning hidden">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <div>
+                                    <strong>Atenção!</strong> 
+                                    <p>Discos da Rússia, Argentina e China podem ser falsificações. Verifique a autenticidade antes de adicionar à coleção.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Edição e Condição -->
+                <div class="form-step" data-step="3">
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-star"></i>
+                                Edição e Condição
+                            </h2>
+                            <p class="section-description">Estado e tipo de edição do disco</p>
+                        </div>
+                        
+                        <div class="edition-selector">
+                            <div class="edition-option" data-edition="Primeira Edição">
+                                <div class="edition-icon">
+                                    <i class="fas fa-crown"></i>
+                                </div>
+                                <div class="edition-info">
+                                    <h3>Primeira Edição</h3>
+                                    <p>Lançamento original</p>
+                                </div>
+                                <input type="radio" name="edicao" value="Primeira Edição" checked>
+                            </div>
+                            <div class="edition-option" data-edition="Reedição">
+                                <div class="edition-icon">
+                                    <i class="fas fa-redo"></i>
+                                </div>
+                                <div class="edition-info">
+                                    <h3>Reedição</h3>
+                                    <p>Relançamento posterior</p>
+                                </div>
+                                <input type="radio" name="edicao" value="Reedição">
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="condicao">
+                                    <i class="fas fa-clipboard-check"></i>
+                                    Condição *
+                                </label>
+                                <select id="condicao" class="form-select" required>
+                                    <option value="">Selecione a condição</option>
+                                    <option value="Mint">🌟 Mint - Perfeito</option>
+                                    <option value="E+">⭐ E+ - Excelente+</option>
+                                    <option value="E">⭐ E - Excelente</option>
+                                    <option value="VG+">✨ VG+ - Muito Bom+</option>
+                                    <option value="VG">✨ VG - Muito Bom</option>
+                                    <option value="G+">💫 G+ - Bom+</option>
+                                    <option value="G">💫 G - Bom</option>
+                                </select>
+                                <div class="condition-info">
+                                    <p id="conditionDescription">Selecione uma condição para ver a descrição</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="sealed-option">
+                                    <input type="checkbox" id="lacrado">
+                                    <label for="lacrado" class="sealed-label">
+                                        <div class="sealed-icon">
+                                            <i class="fas fa-lock"></i>
+                                        </div>
+                                        <div class="sealed-info">
+                                            <h3>Lacrado/Selado</h3>
+                                            <p>Nunca foi aberto</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Itens Extras e Observações -->
+                <div class="form-step" data-step="4">
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-box"></i>
+                                Itens Extras
+                            </h2>
+                            <p class="section-description">Acessórios e brindes incluídos</p>
+                        </div>
+                        
+                        <div class="extras-grid">
+                            <label class="extra-item">
+                                <input type="checkbox" name="extras" value="Encarte">
+                                <div class="extra-content">
+                                    <i class="fas fa-book"></i>
+                                    <span>Encarte</span>
+                                </div>
+                            </label>
+                            <label class="extra-item">
+                                <input type="checkbox" name="extras" value="Poster">
+                                <div class="extra-content">
+                                    <i class="fas fa-image"></i>
+                                    <span>Poster</span>
+                                </div>
+                            </label>
+                            <label class="extra-item">
+                                <input type="checkbox" name="extras" value="Fotos">
+                                <div class="extra-content">
+                                    <i class="fas fa-camera"></i>
+                                    <span>Fotos</span>
+                                </div>
+                            </label>
+                            <label class="extra-item">
+                                <input type="checkbox" name="extras" value="Livreto">
+                                <div class="extra-content">
+                                    <i class="fas fa-book-open"></i>
+                                    <span>Livreto</span>
+                                </div>
+                            </label>
+                            <label class="extra-item">
+                                <input type="checkbox" name="extras" value="Disco Adicional">
+                                <div class="extra-content">
+                                    <i class="fas fa-compact-disc"></i>
+                                    <span>Disco Adicional</span>
+                                </div>
+                            </label>
+                            <label class="extra-item">
+                                <input type="checkbox" name="extras" value="Letras">
+                                <div class="extra-content">
+                                    <i class="fas fa-file-text"></i>
+                                    <span>Letras</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- BoxSet Fields -->
+                        <div id="boxsetFields" class="boxset-section hidden">
+                            <div class="section-header">
+                                <h3 class="section-subtitle">
+                                    <i class="fas fa-gem"></i>
+                                    Informações do BoxSet
+                                </h3>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <div class="limited-edition-option">
+                                        <input type="checkbox" id="edicaoLimitada">
+                                        <label for="edicaoLimitada" class="limited-label">
+                                            <div class="limited-icon">
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <div class="limited-info">
+                                                <h3>Edição Limitada</h3>
+                                                <p>Tiragem limitada numerada</p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="numeroEdicao">
+                                        <i class="fas fa-hashtag"></i>
+                                        Número da Edição
+                                    </label>
+                                    <input type="text" id="numeroEdicao" class="form-input" placeholder="Ex: 1234/5000">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="brindos">
+                                    <i class="fas fa-gift"></i>
+                                    Brindes Incluídos
+                                </label>
+                                <textarea id="brindos" class="form-textarea" placeholder="Liste os brindes incluídos no BoxSet"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Observações -->
+                        <div class="observations-section">
+                            <div class="section-header">
+                                <h3 class="section-subtitle">
+                                    <i class="fas fa-sticky-note"></i>
+                                    Observações
+                                </h3>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="observacoes">
+                                    <i class="fas fa-comment"></i>
+                                    Observações Adicionais
+                                </label>
+                                <textarea id="observacoes" class="form-textarea" placeholder="Adicione informações sobre raridade, características especiais, etc."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-secondary" id="prevBtn" onclick="changeStep(-1)" disabled>
+                        <i class="fas fa-arrow-left"></i>
+                        Anterior
+                    </button>
+                    <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">
+                        Próximo
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">
+                        <i class="fas fa-save"></i>
+                        Salvar Disco
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="assets/js/register-disk.js"></script>
+</body>
+</html>
