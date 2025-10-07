@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - TrackBox</title>
+    <link rel="stylesheet" href="assets/css/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-container">
+            <h1>TrackBox</h1>
+            <p>Entre na sua conta</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="email">E-mail</label>
+                <input type="email" id="email" class="form-input" placeholder="seu@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Senha</label>
+                <input type="password" id="password" class="form-input" placeholder="Digite sua senha" required>
+            </div>
+
+            <div class="form-footer">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="remember">
+                    <span>Lembrar-me</span>
+                </label>
+                <a href="#" class="forgot-link">Esqueceu a senha?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Entrar</button>
+        </form>
+
+        <div class="divider">ou</div>
+
+        <div class="link-text">
+            Não tem uma conta? <a href="register.html">Cadastre-se</a>
+        </div>
+
+        <div class="home-link">
+            <a href="index.html">← Voltar para o início</a>
+        </div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const alertContainer = document.getElementById('alertContainer');
+
+        function showAlert(message, type) {
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            
+            // Buscar usuários (em produção, fazer requisição ao backend)
+            const users = JSON.parse(localStorage.getItem('trackbox_users') || '[]');
+            
+            // Verificar credenciais
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                // Salvar sessão
+                const session = {
+                    userId: user.id,
+                    name: user.name,
+                    email: user.email,
+                    loggedAt: new Date().toISOString()
+                };
+                
+                if (remember) {
+                    localStorage.setItem('trackbox_session', JSON.stringify(session));
+                } else {
+                    sessionStorage.setItem('trackbox_session', JSON.stringify(session));
+                }
+                
+                showAlert('Login realizado com sucesso! Redirecionando...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'colecao.html';
+                }, 1500);
+            } else {
+                showAlert('E-mail ou senha incorretos!', 'error');
+            }
+        });
+
+        // Verificar se já está logado
+        window.addEventListener('load', () => {
+            const session = localStorage.getItem('trackbox_session') || sessionStorage.getItem('trackbox_session');
+            if (session) {
+                window.location.href = 'colecao.html';
+            }
+        });
+    </script>
+</body>
+</html>
