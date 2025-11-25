@@ -441,18 +441,23 @@ include 'includes/header.php';
                     </div>
                     
                     <div class="sealed-option">
-                        <input type="checkbox" id="is_sealed" name="is_sealed">
-                        <label for="is_sealed" class="sealed-label">
-                            <div class="sealed-icon">
-                                <i class="fas fa-lock"></i>
-                            </div>
-                            <div class="sealed-info">
-                                <h3>Disco Lacrado</h3>
-                                <p>O disco ainda está em sua embalagem original lacrada</p>
-                            </div>
-                        </label>
+                    <input type="checkbox" id="is_sealed" name="is_sealed">
+
+                    <label for="is_sealed" class="sealed-label">
+
+                        <div class="sealed-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+
+                        <div class="sealed-info">
+                            <h3>Disco Lacrado</h3>
+                            <p>O disco ainda está em sua embalagem original lacrada</p>
+                        </div>
+
+                    </label>
                     </div>
-                </div>
+
+
 
                 <!-- Itens Extras -->
                 <div class="form-section">

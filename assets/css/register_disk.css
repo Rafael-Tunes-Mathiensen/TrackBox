@@ -674,25 +674,29 @@ body {
     position: relative;
 }
 
+/* Hover original */
 .sealed-option:hover {
     border-color: var(--color-primary);
     transform: translateY(-3px);
     box-shadow: var(--shadow-medium);
 }
 
+/* Ocultar checkbox */
 .sealed-option input[type="checkbox"] {
     position: absolute;
     opacity: 0;
     pointer-events: none;
 }
 
-.sealed-option input[type="checkbox"]:checked + .sealed-label {
-    color: var(--color-primary);
-}
-
-.sealed-option input[type="checkbox"]:checked ~ .sealed-option {
+/* Quando marcado → borda laranja e fundo */
+.sealed-option:has(input:checked) {
     border-color: var(--color-primary);
     background: rgba(255, 107, 53, 0.1);
+}
+
+/* Quando marcado → texto laranja */
+.sealed-option:has(input:checked) .sealed-label {
+    color: var(--color-primary);
 }
 
 .sealed-label {

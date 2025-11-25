@@ -392,7 +392,7 @@ function collectFormData() {
     const origem = document.querySelector('input[name="origem"]:checked').value;
     const edicao = document.querySelector('input[name="edicao"]:checked').value;
     const condicao = document.getElementById('condicao').value;
-    const lacrado = document.getElementById('lacrado').checked;
+    const lacrado = document.getElementById('is_sealed').checked;
     
     // Conditional fields
     const pais = origem === 'Importado' ? document.getElementById('pais').value : '';
