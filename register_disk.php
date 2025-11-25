@@ -296,9 +296,9 @@ include 'includes/header.php';
                     </div>
                     
                     <div class="origin-selector">
-                        <div class="origin-option">
+                        <label class="origin-option">
                             <input type="radio" id="origin_national" name="is_imported" value="0" required>
-                            <label for="origin_national">
+                            <div class="origin-content">
                                 <div class="origin-icon">
                                     <i class="fas fa-home"></i>
                                 </div>
@@ -306,12 +306,12 @@ include 'includes/header.php';
                                     <h3>Nacional</h3>
                                     <p>Produzido no Brasil</p>
                                 </div>
-                            </label>
-                        </div>
+                            </div>
+                        </label>
                         
-                        <div class="origin-option">
+                        <label class="origin-option">
                             <input type="radio" id="origin_imported" name="is_imported" value="1" required>
-                            <label for="origin_imported">
+                            <div class="origin-content">
                                 <div class="origin-icon">
                                     <i class="fas fa-plane"></i>
                                 </div>
@@ -319,8 +319,8 @@ include 'includes/header.php';
                                     <h3>Importado</h3>
                                     <p>Produzido em outro país</p>
                                 </div>
-                            </label>
-                        </div>
+                            </div>
+                        </label>
                     </div>
                     
                     <div class="import-fields" id="import_fields" style="display: none;">
@@ -364,9 +364,9 @@ include 'includes/header.php';
                     </div>
                     
                     <div class="edition-selector">
-                        <div class="edition-option">
+                        <label class="edition-option">
                             <input type="radio" id="edition_first" name="edition" value="primeira_edicao" required>
-                            <label for="edition_first">
+                            <div class="edition-content">
                                 <div class="edition-icon">
                                     <i class="fas fa-star"></i>
                                 </div>
@@ -374,12 +374,12 @@ include 'includes/header.php';
                                     <h3>Primeira Edição</h3>
                                     <p>Lançamento original</p>
                                 </div>
-                            </label>
-                        </div>
+                            </div>
+                        </label>
                         
-                        <div class="edition-option">
+                        <label class="edition-option">
                             <input type="radio" id="edition_reissue" name="edition" value="reedicao" required>
-                            <label for="edition_reissue">
+                            <div class="edition-content">
                                 <div class="edition-icon">
                                     <i class="fas fa-redo"></i>
                                 </div>
@@ -387,8 +387,8 @@ include 'includes/header.php';
                                     <h3>Reedição</h3>
                                     <p>Relançamento posterior</p>
                                 </div>
-                            </label>
-                        </div>
+                            </div>
+                        </label>
                     </div>
                 </div>
 
