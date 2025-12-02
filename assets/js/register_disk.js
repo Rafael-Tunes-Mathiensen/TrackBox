@@ -52,7 +52,9 @@ function setupEventListeners() {
     setupCountrySelection();
     
     // Form submission
-    form.addEventListener('submit', handleFormSubmission);
+    if (form) {
+        form.addEventListener('submit', handleFormSubmission);
+    }
     
     // Auto-save form data
     setupAutoSave();
@@ -72,10 +74,12 @@ function setupMediaTypeSelection() {
             this.classList.add('selected');
             
             // Show/hide BoxSet fields
-            if (radio.value === 'BoxSet') {
-                boxsetFields.classList.remove('hidden');
-            } else {
-                boxsetFields.classList.add('hidden');
+            if (boxsetFields) {
+                if (radio.value === 'BoxSet') {
+                    boxsetFields.classList.remove('hidden');
+                } else {
+                    boxsetFields.classList.add('hidden');
+                }
             }
             
             // Update progress
@@ -98,12 +102,17 @@ function setupOriginSelection() {
             this.classList.add('selected');
             
             // Show/hide import fields
-            if (radio.value === 'Importado') {
-                importFields.classList.remove('hidden');
-                importFields.classList.add('fade-in');
-            } else {
-                importFields.classList.add('hidden');
-                document.getElementById('alertFalsificacao').classList.add('hidden');
+            if (importFields) {
+                if (radio.value === 'Importado') {
+                    importFields.classList.remove('hidden');
+                    importFields.classList.add('fade-in');
+                } else {
+                    importFields.classList.add('hidden');
+                    const alertFalsificacao = document.getElementById('alertFalsificacao');
+                    if (alertFalsificacao) {
+                        alertFalsificacao.classList.add('hidden');
+                    }
+                }
             }
             
             updateFormProgress();
@@ -132,44 +141,50 @@ function setupConditionSelection() {
     const conditionSelect = document.getElementById('condicao');
     const conditionDescription = document.getElementById('conditionDescription');
     
-    conditionSelect.addEventListener('change', function() {
-        const condition = this.value;
-        if (condition && conditionDescriptions[condition]) {
-            conditionDescription.textContent = conditionDescriptions[condition];
-            conditionDescription.style.color = 'var(--color-success)';
-        } else {
-            conditionDescription.textContent = 'Selecione uma condição para ver a descrição';
-            conditionDescription.style.color = 'var(--color-text-secondary)';
-        }
-        
-        updateFormProgress();
-    });
+    if (conditionSelect && conditionDescription) {
+        conditionSelect.addEventListener('change', function() {
+            const condition = this.value;
+            if (condition && conditionDescriptions[condition]) {
+                conditionDescription.textContent = conditionDescriptions[condition];
+                conditionDescription.style.color = 'var(--color-success)';
+            } else {
+                conditionDescription.textContent = 'Selecione uma condição para ver a descrição';
+                conditionDescription.style.color = 'var(--color-text-secondary)';
+            }
+            
+            updateFormProgress();
+        });
+    }
 }
 
 function setupCountrySelection() {
     const paisSelect = document.getElementById('pais');
     const alertFalsificacao = document.getElementById('alertFalsificacao');
     
-    paisSelect.addEventListener('change', function() {
-        const paisesAlerta = ['Rússia', 'Argentina', 'China'];
-        if (paisesAlerta.includes(this.value)) {
-            alertFalsificacao.classList.remove('hidden');
-            alertFalsificacao.classList.add('slide-up');
-        } else {
-            alertFalsificacao.classList.add('hidden');
-        }
-    });
+    if (paisSelect && alertFalsificacao) {
+        paisSelect.addEventListener('change', function() {
+            const paisesAlerta = ['Rússia', 'Argentina', 'China'];
+            if (paisesAlerta.includes(this.value)) {
+                alertFalsificacao.classList.remove('hidden');
+                alertFalsificacao.classList.add('slide-up');
+            } else {
+                alertFalsificacao.classList.add('hidden');
+            }
+        });
+    }
 }
 
 function setupAutoSave() {
-    const inputs = form.querySelectorAll('input, select, textarea');
-    
-    inputs.forEach(input => {
-        input.addEventListener('change', function() {
-            saveFormData();
-            updateFormProgress();
+    if (form) {
+        const inputs = form.querySelectorAll('input, select, textarea');
+        
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                saveFormData();
+                updateFormProgress();
+            });
         });
-    });
+    }
 }
 
 function changeStep(direction) {
@@ -192,6 +207,8 @@ function changeStep(direction) {
 
 function validateCurrentStep() {
     const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+    if (!currentStepElement) return true;
+    
     const requiredFields = currentStepElement.querySelectorAll('[required]');
     
     let isValid = true;
@@ -222,17 +239,19 @@ function validateCurrentStep() {
 }
 
 function validateStep1() {
-    const artista = document.getElementById('artista').value.trim();
-    const album = document.getElementById('album').value.trim();
-    const ano = document.getElementById('ano').value;
+    const artista = document.getElementById('artista');
+    const album = document.getElementById('album');
+    const ano = document.getElementById('ano');
     
-    if (!artista || !album || !ano) {
+    if (!artista || !album || !ano) return true;
+    
+    if (!artista.value.trim() || !album.value.trim() || !ano.value) {
         showAlert('Preencha todos os campos obrigatórios da seção básica.', 'error');
         return false;
     }
     
     const currentYear = new Date().getFullYear();
-    if (ano < 1900 || ano > currentYear + 1) {
+    if (ano.value < 1900 || ano.value > currentYear + 1) {
         showAlert('Ano de lançamento inválido.', 'error');
         return false;
     }
@@ -241,13 +260,14 @@ function validateStep1() {
 }
 
 function validateStep2() {
-    const origem = document.querySelector('input[name="origem"]:checked').value;
+    const origem = document.querySelector('input[name="origem"]:checked');
+    if (!origem) return true;
     
-    if (origem === 'Importado') {
-        const pais = document.getElementById('pais').value;
-        const continente = document.getElementById('continente').value;
+    if (origem.value === 'Importado') {
+        const pais = document.getElementById('pais');
+        const continente = document.getElementById('continente');
         
-        if (!pais || !continente) {
+        if (pais && continente && (!pais.value || !continente.value)) {
             showAlert('Para discos importados, selecione o país e continente.', 'error');
             return false;
         }
@@ -257,9 +277,10 @@ function validateStep2() {
 }
 
 function validateStep3() {
-    const condicao = document.getElementById('condicao').value;
+    const condicao = document.getElementById('condicao');
+    if (!condicao) return true;
     
-    if (!condicao) {
+    if (!condicao.value) {
         showAlert('Selecione a condição do disco.', 'error');
         return false;
     }
@@ -298,14 +319,16 @@ function updateProgressIndicator() {
 }
 
 function updateNavigationButtons() {
-    prevBtn.disabled = currentStep === 1;
+    if (prevBtn) prevBtn.disabled = currentStep === 1;
     
-    if (currentStep === totalSteps) {
-        nextBtn.style.display = 'none';
-        submitBtn.style.display = 'flex';
-    } else {
-        nextBtn.style.display = 'flex';
-        submitBtn.style.display = 'none';
+    if (nextBtn && submitBtn) {
+        if (currentStep === totalSteps) {
+            nextBtn.style.display = 'none';
+            submitBtn.style.display = 'flex';
+        } else {
+            nextBtn.style.display = 'flex';
+            submitBtn.style.display = 'none';
+        }
     }
 }
 
@@ -318,6 +341,8 @@ function updateFormProgress() {
 }
 
 function saveFormData() {
+    if (!form) return;
+    
     // Save current form state to localStorage
     const formData = new FormData(form);
     const data = {};
@@ -330,6 +355,8 @@ function saveFormData() {
 }
 
 function loadFormData() {
+    if (!form) return;
+    
     // Load saved form data
     const savedData = localStorage.getItem('trackbox_form_draft');
     if (savedData) {
@@ -352,9 +379,11 @@ function handleFormSubmission(e) {
     }
     
     // Show loading state
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Salvando...';
-    submitBtn.disabled = true;
+    const originalText = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Salvando...';
+        submitBtn.disabled = true;
+    }
     
     // Simulate API delay
     setTimeout(() => {
@@ -375,43 +404,45 @@ function handleFormSubmission(e) {
             console.error('Erro ao salvar disco:', error);
             showAlert('Erro ao salvar o disco. Tente novamente.', 'error');
             
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
+            if (submitBtn) {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
         }
     }, 1500);
 }
 
 function collectFormData() {
-    const session = JSON.parse(localStorage.getItem('trackbox_session') || sessionStorage.getItem('trackbox_session'));
+    const session = JSON.parse(localStorage.getItem('trackbox_session') || sessionStorage.getItem('trackbox_session') || '{}');
     
-    const tipo = document.querySelector('input[name="tipo"]:checked').value;
-    const artista = document.getElementById('artista').value.trim();
-    const album = document.getElementById('album').value.trim();
-    const ano = parseInt(document.getElementById('ano').value);
-    const gravadora = document.getElementById('gravadora').value.trim();
-    const origem = document.querySelector('input[name="origem"]:checked').value;
-    const edicao = document.querySelector('input[name="edicao"]:checked').value;
-    const condicao = document.getElementById('condicao').value;
-    const lacrado = document.getElementById('is_sealed').checked;
+    const tipo = document.querySelector('input[name="tipo"]:checked')?.value || '';
+    const artista = document.getElementById('artista')?.value.trim() || '';
+    const album = document.getElementById('album')?.value.trim() || '';
+    const ano = parseInt(document.getElementById('ano')?.value) || 0;
+    const gravadora = document.getElementById('gravadora')?.value.trim() || '';
+    const origem = document.querySelector('input[name="origem"]:checked')?.value || '';
+    const edicao = document.querySelector('input[name="edicao"]:checked')?.value || '';
+    const condicao = document.getElementById('condicao')?.value || '';
+    const lacrado = document.getElementById('is_sealed')?.checked || false;
     
     // Conditional fields
-    const pais = origem === 'Importado' ? document.getElementById('pais').value : '';
-    const continente = origem === 'Importado' ? document.getElementById('continente').value : '';
+    const pais = origem === 'Importado' ? (document.getElementById('pais')?.value || '') : '';
+    const continente = origem === 'Importado' ? (document.getElementById('continente')?.value || '') : '';
     
     // Extras
     const extrasCheckboxes = document.querySelectorAll('input[name="extras"]:checked');
     const extras = Array.from(extrasCheckboxes).map(cb => cb.value);
     
     // BoxSet fields
-    const edicaoLimitada = tipo === 'BoxSet' ? document.getElementById('edicaoLimitada').checked : false;
-    const numeroEdicao = tipo === 'BoxSet' ? document.getElementById('numeroEdicao').value.trim() : '';
-    const brindos = tipo === 'BoxSet' ? document.getElementById('brindos').value.trim() : '';
+    const edicaoLimitada = tipo === 'BoxSet' ? (document.getElementById('edicaoLimitada')?.checked || false) : false;
+    const numeroEdicao = tipo === 'BoxSet' ? (document.getElementById('numeroEdicao')?.value.trim() || '') : '';
+    const brindos = tipo === 'BoxSet' ? (document.getElementById('brindos')?.value.trim() || '') : '';
     
-    const observacoes = document.getElementById('observacoes').value.trim();
+    const observacoes = document.getElementById('observacoes')?.value.trim() || '';
     
     return {
         id: Date.now(),
-        userId: session.userId,
+        userId: session.userId || '',
         tipo,
         artista,
         album,
@@ -439,6 +470,8 @@ function saveDiscoToStorage(disco) {
 }
 
 function showAlert(message, type) {
+    if (!alertContainer) return;
+    
     const alertHTML = `
         <div class="alert alert-${type}">
             <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>
@@ -479,7 +512,10 @@ function loadUserInfo() {
     const session = localStorage.getItem('trackbox_session') || sessionStorage.getItem('trackbox_session');
     if (session) {
         const sessionData = JSON.parse(session);
-        document.getElementById('userName').textContent = sessionData.name || 'Usuário';
+        const userName = document.getElementById('userName');
+        if (userName) {
+            userName.textContent = sessionData.name || 'Usuário';
+        }
     }
 }
 
@@ -518,7 +554,7 @@ document.addEventListener('keydown', function(e) {
                 break;
             case 's':
                 e.preventDefault();
-                if (currentStep === totalSteps) {
+                if (currentStep === totalSteps && form) {
                     form.dispatchEvent(new Event('submit'));
                 }
                 break;

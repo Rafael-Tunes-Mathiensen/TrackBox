@@ -663,7 +663,7 @@ body {
     margin: 0;
 }
 
-/* Sealed Option */
+/* Sealed Option - CORRIGIDO */
 .sealed-option {
     background: var(--color-background);
     border: 2px solid rgba(255, 107, 53, 0.2);
@@ -674,28 +674,25 @@ body {
     position: relative;
 }
 
-/* Hover original */
 .sealed-option:hover {
     border-color: var(--color-primary);
     transform: translateY(-3px);
     box-shadow: var(--shadow-medium);
 }
 
-/* Ocultar checkbox */
 .sealed-option input[type="checkbox"] {
     position: absolute;
     opacity: 0;
     pointer-events: none;
 }
 
-/* Quando marcado → borda laranja e fundo */
-.sealed-option:has(input:checked) {
+/* Quando selecionado */
+.sealed-option.selected {
     border-color: var(--color-primary);
     background: rgba(255, 107, 53, 0.1);
 }
 
-/* Quando marcado → texto laranja */
-.sealed-option:has(input:checked) .sealed-label {
+.sealed-option.selected .sealed-info h3 {
     color: var(--color-primary);
 }
 
@@ -716,6 +713,7 @@ body {
     font-weight: 600;
     color: var(--color-text);
     margin-bottom: 0.25rem;
+    transition: var(--transition);
 }
 
 .sealed-info p {
@@ -723,7 +721,7 @@ body {
     font-size: 0.85rem;
 }
 
-/* Extras Grid */
+/* Extras Grid - CORRIGIDO */
 .extras-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -754,13 +752,19 @@ body {
     pointer-events: none;
 }
 
-.extra-item input[type="checkbox"]:checked + .extra-content {
-    color: var(--color-primary);
-}
-
-.extra-item input[type="checkbox"]:checked ~ .extra-item {
+/* Quando selecionado */
+.extra-item.selected {
     border-color: var(--color-primary);
     background: rgba(255, 107, 53, 0.1);
+}
+
+.extra-item.selected .extra-content i {
+    color: var(--color-primary);
+    transform: scale(1.1);
+}
+
+.extra-item.selected .extra-content span {
+    color: var(--color-primary);
 }
 
 .extra-content {
@@ -773,11 +777,13 @@ body {
 .extra-content i {
     font-size: 2rem;
     color: var(--color-primary);
+    transition: var(--transition);
 }
 
 .extra-content span {
     font-weight: 500;
     color: var(--color-text);
+    transition: var(--transition);
 }
 
 /* BoxSet Section */
@@ -811,7 +817,12 @@ body {
     pointer-events: none;
 }
 
-.limited-edition-option input[type="checkbox"]:checked + .limited-label {
+.limited-edition-option.selected {
+    border-color: var(--color-accent);
+    background: rgba(255, 215, 63, 0.1);
+}
+
+.limited-edition-option.selected .limited-info h3 {
     color: var(--color-accent);
 }
 
@@ -832,6 +843,7 @@ body {
     font-weight: 600;
     color: var(--color-text);
     margin-bottom: 0.25rem;
+    transition: var(--transition);
 }
 
 .limited-info p {

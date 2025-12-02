@@ -441,23 +441,18 @@ include 'includes/header.php';
                     </div>
                     
                     <div class="sealed-option">
-                    <input type="checkbox" id="is_sealed" name="is_sealed">
-
-                    <label for="is_sealed" class="sealed-label">
-
-                        <div class="sealed-icon">
-                            <i class="fas fa-lock"></i>
-                        </div>
-
-                        <div class="sealed-info">
-                            <h3>Disco Lacrado</h3>
-                            <p>O disco ainda está em sua embalagem original lacrada</p>
-                        </div>
-
-                    </label>
+                        <input type="checkbox" id="is_sealed" name="is_sealed">
+                        <label for="is_sealed" class="sealed-label">
+                            <div class="sealed-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <div class="sealed-info">
+                                <h3>Disco Lacrado</h3>
+                                <p>O disco ainda está em sua embalagem original lacrada</p>
+                            </div>
+                        </label>
                     </div>
-
-
+                </div>
 
                 <!-- Itens Extras -->
                 <div class="form-section">
@@ -684,13 +679,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Adicionar classes visuais aos checkboxes
+    // Adicionar classes visuais aos checkboxes - CORRIGIDO
     document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-            if (this.checked) {
-                this.closest('.extra-item, .sealed-option, .limited-edition-option')?.classList.add('selected');
-            } else {
-                this.closest('.extra-item, .sealed-option, .limited-edition-option')?.classList.remove('selected');
+            const container = this.closest('.extra-item, .sealed-option, .limited-edition-option');
+            if (container) {
+                if (this.checked) {
+                    container.classList.add('selected');
+                } else {
+                    container.classList.remove('selected');
+                }
             }
         });
     });

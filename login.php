@@ -42,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['full_name'] = $user['full_name'];
                 
-                setFlashMessage('success', 'Login realizado com sucesso!');
                 header('Location: dashboard.php');
                 exit();
             } else {
