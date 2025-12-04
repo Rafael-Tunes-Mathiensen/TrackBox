@@ -67,6 +67,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Observações
         $observations = sanitizeInput($_POST['observations'] ?? '');
         
+        // Processar imagem se fornecida
+        $cover_image_url = null;
+        $cover_image_source = null;
+
+        if (!empty($_POST['cover_image_url']) && !empty($_POST['cover_image_source'])) {
+            $cover_image_url = sanitizeInput($_POST['cover_image_url']);
+            $cover_image_source = sanitizeInput($_POST['cover_image_source']);
+            
+            // Validar fonte da imagem
+            if (!in_array($cover_image_source, ['upload', 'camera', 'api', 'url'])) {
+                $cover_image_source = 'url';
+            }
+        }
+        
         // Validações
         if (empty($type) || empty($artist) || empty($album_name) || empty($condition_disk) || empty($condition_cover)) {
             $error_message = 'Por favor, preencha todos os campos obrigatórios!';
@@ -87,14 +101,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     INSERT INTO disks (
                         user_id, type, artist, album_name, year, label, 
                         country_id, is_imported, edition, condition_disk, 
-                        condition_cover, is_sealed, observations
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        condition_cover, is_sealed, observations,
+                        cover_image_url, cover_image_source
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ");
                 
                 $stmt->execute([
                     $_SESSION['user_id'], $type, $artist, $album_name, $year, $label,
                     $country_id, $is_imported, $edition, $condition_disk,
-                    $condition_cover, $is_sealed, $observations
+                    $condition_cover, $is_sealed, $observations,
+                    $cover_image_url, $cover_image_source
                 ]);
                 
                 $disk_id = $pdo->lastInsertId();
@@ -284,6 +300,130 @@ include 'includes/header.php';
                                    value="<?php echo htmlspecialchars($_POST['label'] ?? ''); ?>">
                         </div>
                     </div>
+                </div>
+
+                <!-- Seção de Imagem -->
+                <div class="form-section image-section">
+                    <div class="section-header">
+                        <h2 class="section-subtitle">
+                            <i class="fas fa-image"></i>
+                            Imagem do Disco
+                        </h2>
+                        <p class="section-description">Adicione uma capa para o seu disco</p>
+                    </div>
+                    
+                    <div class="image-upload-container">
+                        <!-- Preview da Imagem -->
+                        <div class="image-preview" id="imagePreview">
+                            <div class="image-placeholder">
+                                <i class="fas fa-image"></i>
+                                <p>Nenhuma imagem selecionada</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Opções de Upload -->
+                        <div class="upload-options">
+                            <div class="upload-tabs">
+                                <button type="button" class="upload-tab active" data-tab="search">
+                                    <i class="fas fa-search"></i>
+                                    Buscar Online
+                                </button>
+                                <button type="button" class="upload-tab" data-tab="upload">
+                                    <i class="fas fa-upload"></i>
+                                    Enviar Arquivo
+                                </button>
+                                <button type="button" class="upload-tab" data-tab="camera">
+                                    <i class="fas fa-camera"></i>
+                                    Tirar Foto
+                                </button>
+                                <button type="button" class="upload-tab" data-tab="url">
+                                    <i class="fas fa-link"></i>
+                                    URL da Imagem
+                                </button>
+                            </div>
+                            
+                            <!-- Busca Online -->
+                            <div class="upload-content active" id="searchTab">
+                                <div class="search-form">
+                                    <p class="tab-description">
+                                        <i class="fas fa-info-circle"></i>
+                                        Buscaremos automaticamente a capa baseada no artista e álbum informados
+                                    </p>
+                                    <button type="button" class="btn btn-primary" id="searchCoverBtn">
+                                        <i class="fas fa-search"></i>
+                                        Buscar Capa Automaticamente
+                                    </button>
+                                    <div class="search-results" id="searchResults"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Upload de Arquivo -->
+                            <div class="upload-content" id="uploadTab">
+                                <div class="file-upload-area" id="fileUploadArea">
+                                    <input type="file" id="imageFile" accept="image/*" style="display: none;">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <p class="upload-text">
+                                        <strong>Clique para selecionar</strong> ou arraste uma imagem aqui
+                                    </p>
+                                    <p class="upload-info">
+                                        Formatos: JPEG, PNG, WebP • Máximo: 5MB
+                                    </p>
+                                </div>
+                                <div class="upload-progress" id="uploadProgress" style="display: none;">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="progressFill"></div>
+                                    </div>
+                                    <p class="progress-text" id="progressText">Enviando...</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Câmera -->
+                            <div class="upload-content" id="cameraTab">
+                                <div class="camera-container">
+                                    <video id="cameraVideo" autoplay style="display: none;"></video>
+                                    <canvas id="cameraCanvas" style="display: none;"></canvas>
+                                    <div class="camera-placeholder" id="cameraPlaceholder">
+                                        <i class="fas fa-camera"></i>
+                                        <p>Clique para ativar a câmera</p>
+                                    </div>
+                                    <div class="camera-controls" id="cameraControls" style="display: none;">
+                                        <button type="button" class="btn btn-primary" id="captureBtn">
+                                            <i class="fas fa-camera"></i>
+                                            Capturar Foto
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" id="stopCameraBtn">
+                                            <i class="fas fa-stop"></i>
+                                            Parar Câmera
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- URL da Imagem -->
+                            <div class="upload-content" id="urlTab">
+                                <div class="url-form">
+                                    <div class="form-group">
+                                        <label class="form-label" for="imageUrl">
+                                            <i class="fas fa-link"></i>
+                                            URL da Imagem
+                                        </label>
+                                        <input type="url" id="imageUrl" class="form-input" 
+                                               placeholder="https://exemplo.com/imagem.jpg">
+                                    </div>
+                                    <button type="button" class="btn btn-primary" id="loadUrlBtn">
+                                        <i class="fas fa-download"></i>
+                                        Carregar Imagem
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Campo hidden para armazenar URL da imagem -->
+                    <input type="hidden" id="selectedImageUrl" name="cover_image_url">
+                    <input type="hidden" id="selectedImageSource" name="cover_image_source">
                 </div>
 
                 <!-- Origem -->
@@ -679,7 +819,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Adicionar classes visuais aos checkboxes - CORRIGIDO
+    // Adicionar classes visuais aos checkboxes
     document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const container = this.closest('.extra-item, .sealed-option, .limited-edition-option');
@@ -692,7 +832,656 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Image Upload Functionality
+    const uploadTabs = document.querySelectorAll('.upload-tab');
+    const uploadContents = document.querySelectorAll('.upload-content');
+    const imagePreview = document.getElementById('imagePreview');
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const imageFile = document.getElementById('imageFile');
+    const searchCoverBtn = document.getElementById('searchCoverBtn');
+    const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+    const cameraVideo = document.getElementById('cameraVideo');
+    const cameraCanvas = document.getElementById('cameraCanvas');
+    const captureBtn = document.getElementById('captureBtn');
+    const stopCameraBtn = document.getElementById('stopCameraBtn');
+    const cameraControls = document.getElementById('cameraControls');
+    const loadUrlBtn = document.getElementById('loadUrlBtn');
+    const imageUrl = document.getElementById('imageUrl');
+    
+    let currentStream = null;
+    let selectedImage = null;
+    
+    // Tabs functionality
+    uploadTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const targetTab = this.dataset.tab;
+            
+            // Update active tab
+            uploadTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update active content
+            uploadContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === targetTab + 'Tab') {
+                    content.classList.add('active');
+                }
+            });
+            
+            // Stop camera if switching away
+            if (targetTab !== 'camera' && currentStream) {
+                stopCamera();
+            }
+        });
+    });
+    
+    // File upload
+    if (fileUploadArea && imageFile) {
+        fileUploadArea.addEventListener('click', () => imageFile.click());
+        
+        // Drag and drop
+        fileUploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+        
+        fileUploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+        
+        fileUploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+        
+        imageFile.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                handleFileSelect(this.files[0]);
+            }
+        });
+    }
+    
+    // Search cover
+    if (searchCoverBtn) {
+        searchCoverBtn.addEventListener('click', function() {
+            const artist = document.getElementById('artist').value.trim();
+            const album = document.getElementById('album_name').value.trim();
+            
+            if (!artist || !album) {
+                showNotification('Preencha o artista e nome do álbum primeiro', 'error');
+                return;
+            }
+            
+            searchCover(artist, album);
+        });
+    }
+    
+    // Camera functionality
+    if (cameraPlaceholder) cameraPlaceholder.addEventListener('click', startCamera);
+    if (captureBtn) captureBtn.addEventListener('click', capturePhoto);
+    if (stopCameraBtn) stopCameraBtn.addEventListener('click', stopCamera);
+    
+    // URL functionality
+    if (loadUrlBtn) loadUrlBtn.addEventListener('click', loadImageFromUrl);
+    
+    function handleFileSelect(file) {
+        if (!validateFile(file)) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            showImagePreview(e.target.result);
+            selectedImage = {
+                file: file,
+                source: 'upload',
+                url: e.target.result
+            };
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    function validateFile(file) {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        
+        if (!allowedTypes.includes(file.type)) {
+            showNotification('Tipo de arquivo não permitido. Use JPEG, PNG ou WebP', 'error');
+            return false;
+        }
+        
+        if (file.size > maxSize) {
+            showNotification('Arquivo muito grande. Máximo: 5MB', 'error');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function showImagePreview(src) {
+        if (imagePreview) {
+            imagePreview.innerHTML = `<img src="${src}" alt="Preview">`;
+        }
+    }
+    
+    function searchCover(artist, album) {
+        const btn = searchCoverBtn;
+        const originalText = btn.innerHTML;
+        
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+        btn.disabled = true;
+        
+        // Fazer chamada para buscar capa
+        fetch('image_search.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=search&artist=${encodeURIComponent(artist)}&album=${encodeURIComponent(album)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            
+            if (data.success && data.image_url) {
+                showImagePreview(data.image_url);
+                selectedImage = {
+                    url: data.image_url,
+                    source: 'api'
+                };
+                showNotification('Capa encontrada!', 'success');
+            } else {
+                showNotification('Nenhuma capa encontrada. Tente outro método.', 'warning');
+            }
+        })
+        .catch(error => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            showNotification('Erro ao buscar capa', 'error');
+            console.error('Erro:', error);
+        });
+    }
+    
+    async function startCamera() {
+        try {
+            currentStream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                } 
+            });
+            
+            if (cameraVideo) {
+                cameraVideo.srcObject = currentStream;
+                cameraPlaceholder.style.display = 'none';
+                cameraVideo.style.display = 'block';
+                if (cameraControls) cameraControls.style.display = 'flex';
+            }
+            
+        } catch (error) {
+            showNotification('Erro ao acessar câmera: ' + error.message, 'error');
+        }
+    }
+    
+    function capturePhoto() {
+        if (!cameraVideo || !cameraCanvas) return;
+        
+        const context = cameraCanvas.getContext('2d');
+        cameraCanvas.width = cameraVideo.videoWidth;
+        cameraCanvas.height = cameraVideo.videoHeight;
+        
+        context.drawImage(cameraVideo, 0, 0);
+        
+        cameraCanvas.toBlob(function(blob) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                showImagePreview(e.target.result);
+                selectedImage = {
+                    blob: blob,
+                    source: 'camera',
+                    url: e.target.result
+                };
+                showNotification('Foto capturada!', 'success');
+            };
+            reader.readAsDataURL(blob);
+        }, 'image/jpeg', 0.8);
+        
+        stopCamera();
+    }
+    
+    function stopCamera() {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+            currentStream = null;
+        }
+        
+        if (cameraVideo && cameraControls && cameraPlaceholder) {
+            cameraVideo.style.display = 'none';
+            cameraControls.style.display = 'none';
+            cameraPlaceholder.style.display = 'block';
+        }
+    }
+    
+    function loadImageFromUrl() {
+        if (!imageUrl) return;
+        
+        const url = imageUrl.value.trim();
+        
+        if (!url) {
+            showNotification('Digite uma URL válida', 'error');
+            return;
+        }
+        
+        if (!isValidImageUrl(url)) {
+            showNotification('URL deve ser uma imagem válida', 'error');
+            return;
+        }
+        
+        const btn = loadUrlBtn;
+        const originalText = btn.innerHTML;
+        
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Carregando...';
+        btn.disabled = true;
+        
+        const img = new Image();
+        img.onload = function() {
+            showImagePreview(url);
+            selectedImage = {
+                url: url,
+                source: 'url'
+            };
+            
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            showNotification('Imagem carregada!', 'success');
+        };
+        
+        img.onerror = function() {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            showNotification('Erro ao carregar imagem da URL', 'error');
+        };
+        
+        img.src = url;
+    }
+    
+    function isValidImageUrl(url) {
+        return /\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i.test(url) || 
+               url.includes('cloudinary.com') || 
+               url.includes('imgur.com') ||
+               url.includes('lastfm.freetls.fastly.net');
+    }
+    
+    // Update hidden fields when form is submitted
+    const diskForm = document.querySelector('.disk-form');
+    if (diskForm) {
+        diskForm.addEventListener('submit', function(e) {
+            if (selectedImage) {
+                const urlField = document.getElementById('selectedImageUrl');
+                const sourceField = document.getElementById('selectedImageSource');
+                
+                if (urlField) urlField.value = selectedImage.url || '';
+                if (sourceField) sourceField.value = selectedImage.source || '';
+            }
+        });
+    }
+    
+    function showNotification(message, type) {
+        // Criar notificação
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        
+        // Adicionar ao body
+        document.body.appendChild(notification);
+        
+        // Animar entrada
+        setTimeout(() => notification.classList.add('show'), 100);
+        
+        // Remover após 3 segundos
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
 });
 </script>
+
+<style>
+/* Image Upload Section */
+.image-section {
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.05) 0%, rgba(103, 58, 183, 0.05) 100%);
+    border: 1px solid rgba(33, 150, 243, 0.2);
+}
+
+.image-upload-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.image-preview {
+    background: var(--color-background);
+    border: 2px dashed rgba(33, 150, 243, 0.3);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    text-align: center;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-medium);
+}
+
+.image-placeholder {
+    color: var(--color-text-secondary);
+}
+
+.image-placeholder i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: rgba(33, 150, 243, 0.5);
+}
+
+.upload-options {
+    background: var(--color-background);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    border: 1px solid rgba(33, 150, 243, 0.2);
+}
+
+.upload-tabs {
+    display: flex;
+    background: var(--color-surface);
+    border-bottom: 1px solid rgba(33, 150, 243, 0.2);
+}
+
+.upload-tab {
+    flex: 1;
+    padding: 1rem;
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.upload-tab:hover,
+.upload-tab.active {
+    background: rgba(33, 150, 243, 0.1);
+    color: #2196F3;
+}
+
+.upload-tab i {
+    font-size: 1.2rem;
+}
+
+.upload-content {
+    display: none;
+    padding: 2rem;
+}
+
+.upload-content.active {
+    display: block;
+}
+
+.tab-description {
+    background: rgba(33, 150, 243, 0.1);
+    border: 1px solid rgba(33, 150, 243, 0.2);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    color: #2196F3;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.file-upload-area {
+    border: 2px dashed rgba(33, 150, 243, 0.3);
+    border-radius: var(--border-radius);
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.file-upload-area:hover {
+    border-color: #2196F3;
+    background: rgba(33, 150, 243, 0.05);
+}
+
+.file-upload-area.dragover {
+    border-color: #2196F3;
+    background: rgba(33, 150, 243, 0.1);
+    transform: scale(1.02);
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: #2196F3;
+    margin-bottom: 1rem;
+}
+
+.upload-text {
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.upload-info {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+.upload-progress {
+    text-align: center;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(33, 150, 243, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2196F3 0%, #03A9F4 100%);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    color: #2196F3;
+    font-weight: 500;
+}
+
+.camera-container {
+    text-align: center;
+}
+
+.camera-placeholder {
+    border: 2px dashed rgba(33, 150, 243, 0.3);
+    border-radius: var(--border-radius);
+    padding: 3rem 2rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.camera-placeholder:hover {
+    border-color: #2196F3;
+    background: rgba(33, 150, 243, 0.05);
+}
+
+.camera-placeholder i {
+    font-size: 3rem;
+    color: #2196F3;
+    margin-bottom: 1rem;
+}
+
+#cameraVideo {
+    width: 100%;
+    max-width: 400px;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+}
+
+.camera-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.search-results {
+    margin-top: 1.5rem;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(33, 150, 243, 0.2);
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.search-result-item:hover {
+    background: rgba(33, 150, 243, 0.05);
+    border-color: #2196F3;
+}
+
+.search-result-item img {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--border-radius);
+    object-fit: cover;
+}
+
+.search-result-info {
+    flex: 1;
+}
+
+.search-result-info h4 {
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+}
+
+.search-result-info p {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Notification styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--color-surface);
+    border: 1px solid rgba(255, 107, 53, 0.2);
+    border-radius: var(--border-radius);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    z-index: 10001;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    box-shadow: var(--shadow-large);
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification-success {
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+.notification-error {
+    border-color: var(--color-error);
+    color: var(--color-error);
+}
+
+.notification-warning {
+    border-color: var(--color-warning);
+    color: var(--color-warning);
+}
+
+.notification i {
+    font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .image-upload-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .upload-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .upload-tab {
+        flex: 1 1 50%;
+    }
+    
+    .camera-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* Loading states */
+.loading .upload-tab {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.btn.loading {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.btn.loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
 
 <?php include 'includes/footer.php'; ?>

@@ -57,7 +57,7 @@ try {
     
     $where_clause = implode(' AND ', $where_conditions);
     
-    // Buscar discos
+    // Buscar discos (incluindo campos de imagem)
     $stmt = $pdo->prepare("
         SELECT d.*, c.country_name 
         FROM disks d 
@@ -279,6 +279,36 @@ include 'includes/header.php';
                 <div class="disks-grid" id="disksGrid">
                     <?php foreach ($disks as $disk): ?>
                     <div class="disk-card" data-disk-id="<?php echo $disk['id']; ?>">
+                        <!-- Imagem do disco -->
+                        <div class="disk-image">
+                            <?php if (!empty($disk['cover_image_url'])): ?>
+                                <img src="<?php echo htmlspecialchars($disk['cover_image_url']); ?>" 
+                                     alt="<?php echo htmlspecialchars($disk['album_name']); ?>"
+                                     loading="lazy"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                <div class="no-image" style="display: none;">
+                                    <i class="fas fa-music"></i>
+                                    <span>Sem capa</span>
+                                </div>
+                            <?php else: ?>
+                                <div class="no-image">
+                                    <i class="fas fa-music"></i>
+                                    <span>Sem capa</span>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <!-- Badge de fonte da imagem -->
+                            <?php if (!empty($disk['cover_image_source'])): ?>
+                                <div class="image-source-badge">
+                                    <i class="fas fa-<?php 
+                                        echo $disk['cover_image_source'] === 'api' ? 'search' : 
+                                            ($disk['cover_image_source'] === 'upload' ? 'upload' : 
+                                            ($disk['cover_image_source'] === 'camera' ? 'camera' : 'link')); 
+                                    ?>"></i>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        
                         <div class="disk-header">
                             <div class="disk-type">
                                 <i class="fas fa-<?php echo $disk['type'] === 'CD' ? 'compact-disc' : ($disk['type'] === 'LP' ? 'record-vinyl' : 'box-open'); ?>"></i>
@@ -651,6 +681,76 @@ include 'includes/header.php';
 
 .disk-card:hover::before {
     transform: scaleX(1);
+}
+
+/* Disk Image Styles */
+.disk-image {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    margin-bottom: 1rem;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    background: var(--color-background);
+}
+
+.disk-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+    animation: imageLoad 0.5s ease-out;
+}
+
+.disk-card:hover .disk-image img {
+    transform: scale(1.05);
+}
+
+.no-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(247, 147, 30, 0.1) 100%);
+    color: var(--color-text-secondary);
+    border: 2px dashed rgba(255, 107, 53, 0.3);
+}
+
+.no-image i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-primary);
+    opacity: 0.7;
+}
+
+.no-image span {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.image-source-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(0, 0, 0, 0.7);
+    color: var(--color-white);
+    padding: 0.25rem 0.5rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    backdrop-filter: blur(10px);
+}
+
+@keyframes imageLoad {
+    from {
+        opacity: 0;
+        transform: scale(1.1);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .disk-header {
@@ -1035,6 +1135,10 @@ include 'includes/header.php';
     .modal-footer {
         flex-direction: column;
     }
+    
+    .disk-image {
+        height: 150px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1057,6 +1161,18 @@ include 'includes/header.php';
     
     .disk-actions {
         flex-direction: row;
+    }
+    
+    .disk-image {
+        height: 120px;
+    }
+    
+    .no-image i {
+        font-size: 1.5rem;
+    }
+    
+    .no-image span {
+        font-size: 0.8rem;
     }
 }
 
@@ -1088,6 +1204,53 @@ include 'includes/header.php';
 /* Smooth transitions */
 * {
     transition: var(--transition);
+}
+
+/* Notification styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--color-surface);
+    border: 1px solid rgba(255, 107, 53, 0.2);
+    border-radius: var(--border-radius);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    z-index: 10001;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    box-shadow: var(--shadow-large);
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification-success {
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+.notification-error {
+    border-color: var(--color-error);
+    color: var(--color-error);
+}
+
+.notification i {
+    font-size: 1.2rem;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
 }
 </style>
 
@@ -1302,57 +1465,6 @@ document.getElementById('deleteModal').addEventListener('click', function(e) {
         closeDeleteModal();
     }
 });
-
-// Animação de fade out
-const fadeOutStyle = document.createElement('style');
-fadeOutStyle.textContent = `
-    @keyframes fadeOut {
-        from {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        to {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-    }
-    
-    .notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: var(--color-surface);
-        border: 1px solid rgba(255, 107, 53, 0.2);
-        border-radius: var(--border-radius);
-        padding: 1rem 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        z-index: 10001;
-        transform: translateX(400px);
-        transition: transform 0.3s ease;
-        box-shadow: var(--shadow-large);
-    }
-    
-    .notification.show {
-        transform: translateX(0);
-    }
-    
-    .notification-success {
-        border-color: var(--color-success);
-        color: var(--color-success);
-    }
-
-    .notification-error {
-        border-color: var(--color-error);
-        color: var(--color-error);
-    }
-    
-    .notification i {
-        font-size: 1.2rem;
-    }
-`;
-document.head.appendChild(fadeOutStyle);
 </script>
 
 <?php include 'includes/footer.php'; ?>
