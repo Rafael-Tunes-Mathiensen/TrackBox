@@ -1,5 +1,29 @@
 <?php
 // includes/header.php
+// Garante que a sessão seja iniciada antes de qualquer saída
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Inclui o arquivo de funções
+require_once 'includes/functions.php';
+
+// Conecta ao banco de dados para obter informações do usuário
+require_once 'config/database.php';
+$database = new Database();
+$pdo = $database->getConnection(); // Conexão PDO disponível globalmente se necessário
+
+$current_user = null;
+if (isLoggedIn()) {
+    $current_user = getCurrentUser($pdo);
+}
+
+// Define o user_id para busca (sem shared_collection_owner_id)
+$target_user_id = $_SESSION['user_id'] ?? null;
+
+// NOTA: As variáveis $viewing_shared_collection, $shared_owner_username, $shared_owner_fullname
+// e $shared_code foram removidas e não são mais necessárias.
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -24,7 +48,6 @@
                     <span class="tagline">Organize sua coleção musical</span>
                 </div>
             </div>
-            
             <?php if (isLoggedIn()): ?>
             <nav class="nav">
                 <a href="dashboard.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>">
@@ -40,17 +63,16 @@
                     <span>Pesquisar</span>
                 </a>
             </nav>
-            
             <div class="user-menu">
                 <div class="user-info">
                     <i class="fas fa-user-circle"></i>
-                    <span>Olá, <?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                    <span>Olá, <?php echo htmlspecialchars($current_user['username']); ?></span>
                 </div>
                 <a href="logout.php" class="logout-btn" title="Sair">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
             </div>
-            <?php else: ?>
+            <?php else: // Usuário não logado ?>
             <nav class="nav">
                 <a href="index.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>">
                     <i class="fas fa-home"></i>
@@ -69,7 +91,6 @@
         </div>
     </header>
     <?php endif; ?>
-    
     <?php
     // Exibir mensagens flash
     $flash = getFlashMessage();
@@ -79,7 +100,6 @@
         <i class="fas fa-<?php echo $flash['type'] === 'success' ? 'check-circle' : 'exclamation-triangle'; ?>"></i>
         <span><?php echo htmlspecialchars($flash['message']); ?></span>
     </div>
-    
     <style>
     .flash-message {
         position: fixed;
@@ -97,21 +117,17 @@
         animation: slideInRight 0.3s ease-out;
         max-width: 400px;
     }
-    
     .flash-message.alert-success {
         border-color: var(--color-success);
         color: var(--color-success);
     }
-    
     .flash-message.alert-error {
         border-color: var(--color-error);
         color: var(--color-error);
     }
-    
     .flash-message i {
         font-size: 1.2rem;
     }
-    
     @keyframes slideInRight {
         from {
             transform: translateX(400px);
@@ -122,12 +138,10 @@
             opacity: 1;
         }
     }
-    
     /* Auto-hide after 5 seconds */
     .flash-message {
         animation: slideInRight 0.3s ease-out, slideOutRight 0.3s ease-out 4.7s forwards;
     }
-    
     @keyframes slideOutRight {
         from {
             transform: translateX(0);

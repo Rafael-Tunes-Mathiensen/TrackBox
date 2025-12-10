@@ -1,11 +1,10 @@
 <?php
 // edit_disk.php
 require_once 'includes/functions.php';
-
 // Verificar se está logado
 requireLogin();
 
-// NOVO: Conectar ao banco para verificar permissões e buscar países
+// Conectar ao banco para buscar países
 require_once 'config/database.php';
 $database = new Database();
 $pdo = $database->getConnection();
@@ -18,7 +17,8 @@ if (empty($disk_id)) {
     exit();
 }
 
-// NOVO: Obter dados do disco, incluindo image_path e is_favorite
+// Obter dados do disco, incluindo image_path e is_favorite
+// A função getDiskById agora é chamada sem o parâmetro shared_owner_id.
 $disk = getDiskById($pdo, $disk_id, $_SESSION['user_id']);
 
 if (!$disk) {
@@ -27,8 +27,8 @@ if (!$disk) {
     exit();
 }
 
-// NOVO: Verificar permissão: Somente o dono do disco ou um administrador pode editar
-if ($disk['user_id'] !== $_SESSION['user_id'] && !isCurrentUserAdmin($pdo)) {
+// Verificar permissão: Somente o dono do disco pode editar
+if ($disk['user_id'] !== $_SESSION['user_id']) {
     setFlashMessage('error', 'Você não tem permissão para editar este disco.');
     header('Location: disk_details.php?id=' . $disk_id);
     exit();
@@ -45,7 +45,7 @@ try {
     // Buscar países
     $countries = getCountriesByContinent($pdo);
 } catch (Exception $e) {
-    setFlashMessage('error', 'Erro ao carregar dados do disco.');
+    setFlashMessage('error', 'Erro ao carregar dados do disco: ' . $e->getMessage());
     header('Location: search_disks.php');
     exit();
 }
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $condition_disk = sanitizeInput($_POST['condition_disk'] ?? '');
         $condition_cover = sanitizeInput($_POST['condition_cover'] ?? '');
         $is_sealed = isset($_POST['is_sealed']);
-        $is_favorite = isset($_POST['is_favorite']); // NOVO: Campo is_favorite
+        $is_favorite = isset($_POST['is_favorite']); // Campo is_favorite
 
         // Extras
         $has_booklet = isset($_POST['has_booklet']);
@@ -104,22 +104,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error_message = 'Para discos importados, selecione o país de origem!';
         } else {
             $new_image_path = null;
-            $keep_existing_image = $_POST['keep_existing_image'] ?? 'true'; // NOVO: Campo para controlar imagem
+            $keep_existing_image = $_POST['keep_existing_image'] ?? 'true'; // Campo para controlar se a imagem existente deve ser mantida
 
             try {
-                // NOVO: Lidar com upload de imagem
+                // Lidar com upload de imagem
                 if (isset($_FILES['disk_image']) && $_FILES['disk_image']['error'] === UPLOAD_ERR_OK) {
                     $new_image_path = uploadImage($_FILES['disk_image']);
                 }
 
                 // Preparar dados para updateDisk
                 $update_data = [
-                    'type' => $type, 'artist' => $artist, 'album_name' => $album_name, 'year' => $year, 'label' => $label,
-                    'country_id' => $country_id, 'is_imported' => $is_imported, 'edition' => $edition,
+                    'type' => $type, 'artist' => $artist, 'album_name' => $album_name, 'year' => $year,
+                    'label' => $label, 'country_id' => $country_id, 'is_imported' => $is_imported, 'edition' => $edition,
                     'condition_disk' => $condition_disk, 'condition_cover' => $condition_cover,
-                    'is_sealed' => $is_sealed, 'is_favorite' => $is_favorite, 'observations' => $observations, // NOVO
-                    'new_image_path' => $new_image_path, // NOVO
-                    'keep_existing_image' => $keep_existing_image, // NOVO
+                    'is_sealed' => $is_sealed, 'is_favorite' => $is_favorite, 'observations' => $observations,
+                    'new_image_path' => $new_image_path,
+                    'keep_existing_image' => $keep_existing_image,
                     'has_booklet' => $has_booklet, 'has_poster' => $has_poster, 'has_photos' => $has_photos,
                     'has_extra_disk' => $has_extra_disk, 'has_lyrics' => $has_lyrics, 'other_extras' => $other_extras,
                     'is_limited_edition' => $is_limited_edition, 'edition_number' => $edition_number,
@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit();
                 } else {
                     $error_message = 'Erro ao atualizar disco. Tente novamente.';
-                     // Se a nova imagem foi movida mas a transação falhou, tente removê-la para evitar lixo
+                    // Se a nova imagem foi movida mas a transação falhou, tente removê-la para evitar lixo
                     if ($new_image_path && file_exists($new_image_path)) {
                         unlink($new_image_path);
                     }
@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } catch (Exception $e) {
                 error_log("Erro ao processar edição: " . $e->getMessage());
                 if (empty($error_message)) {
-                     $error_message = 'Erro ao atualizar disco. Tente novamente. Detalhes: ' . $e->getMessage();
+                    $error_message = 'Erro ao atualizar disco. Tente novamente. Detalhes: ' . $e->getMessage();
                 }
                 // Se a nova imagem foi movida mas a transação falhou, tente removê-la para evitar lixo
                 if ($new_image_path && file_exists($new_image_path)) {
@@ -150,17 +150,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
 // Recarrega os dados do disco após uma tentativa de POST falha para que o formulário mostre os valores atuais
 $disk = getDiskById($pdo, $disk_id, $_SESSION['user_id']);
-
 include 'includes/header.php';
 ?>
 <div class="page-background">
-<div class="vinyl-animation">
-<div class="vinyl vinyl-1"></div>
-<div class="vinyl vinyl-2"></div>
-<div class="vinyl vinyl-3"></div>
-</div>
+    <div class="vinyl-animation">
+        <div class="vinyl vinyl-1"></div>
+        <div class="vinyl vinyl-2"></div>
+        <div class="vinyl vinyl-3"></div>
+    </div>
 </div>
 <main class="main">
     <div class="container">
@@ -179,6 +179,7 @@ include 'includes/header.php';
             <i class="fas fa-chevron-right"></i>
             <span>Editar</span>
         </nav>
+
         <!-- Header da Página -->
         <div class="page-header">
             <div class="page-title-container">
@@ -191,6 +192,7 @@ include 'includes/header.php';
                 </div>
             </div>
         </div>
+
         <!-- Formulário -->
         <div class="form-container">
             <?php if (!empty($error_message)): ?>
@@ -202,9 +204,9 @@ include 'includes/header.php';
                     </div>
                 </div>
             <?php endif; ?>
-            <!-- NOVO: Adicionar enctype="multipart/form-data" para upload de arquivos -->
             <form method="POST" class="disk-form" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
+
                 <!-- Tipo de Mídia -->
                 <div class="form-section">
                     <div class="section-header">
@@ -253,6 +255,7 @@ include 'includes/header.php';
                         </div>
                     </div>
                 </div>
+
                 <!-- Informações Básicas -->
                 <div class="form-section">
                     <div class="section-header">
@@ -268,8 +271,8 @@ include 'includes/header.php';
                                 Artista/Banda *
                             </label>
                             <input type="text" id="artist" name="artist" class="form-input"
-                                placeholder="Nome do artista ou banda" required
-                                value="<?php echo htmlspecialchars($disk['artist']); ?>">
+                                   placeholder="Nome do artista ou banda" required
+                                   value="<?php echo htmlspecialchars($disk['artist']); ?>">
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="album_name">
@@ -277,8 +280,8 @@ include 'includes/header.php';
                                 Nome do Álbum *
                             </label>
                             <input type="text" id="album_name" name="album_name" class="form-input"
-                                placeholder="Título do álbum" required
-                                value="<?php echo htmlspecialchars($disk['album_name']); ?>">
+                                   placeholder="Título do álbum" required
+                                   value="<?php echo htmlspecialchars($disk['album_name']); ?>">
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="year">
@@ -286,8 +289,8 @@ include 'includes/header.php';
                                 Ano de Lançamento
                             </label>
                             <input type="number" id="year" name="year" class="form-input"
-                                placeholder="Ex: 1975" min="1900" max="<?php echo date('Y'); ?>"
-                                value="<?php echo $disk['year']; ?>">
+                                   placeholder="Ex: 1975" min="1900" max="<?php echo date('Y'); ?>"
+                                   value="<?php echo $disk['year']; ?>">
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="label">
@@ -295,12 +298,13 @@ include 'includes/header.php';
                                 Gravadora/Selo
                             </label>
                             <input type="text" id="label" name="label" class="form-input"
-                                placeholder="Nome da gravadora"
-                                value="<?php echo htmlspecialchars($disk['label']); ?>">
+                                   placeholder="Nome da gravadora"
+                                   value="<?php echo htmlspecialchars($disk['label']); ?>">
                         </div>
                     </div>
                 </div>
-                <!-- NOVO: Campo para upload de imagem e preview -->
+
+                <!-- Campo para upload de imagem e preview -->
                 <div class="form-section">
                     <div class="section-header">
                         <h2 class="section-subtitle">
@@ -322,6 +326,7 @@ include 'includes/header.php';
                         </div>
                     </div>
                 </div>
+
                 <!-- Origem -->
                 <div class="form-section">
                     <div class="section-header">
@@ -368,8 +373,8 @@ include 'includes/header.php';
                                     <optgroup label="<?php echo htmlspecialchars($continent); ?>">
                                         <?php foreach ($continent_countries as $country): ?>
                                             <option value="<?php echo $country['id']; ?>"
-                                                <?php echo $country['is_fake_prone'] ? 'data-fake-prone="true"' : ''; ?>
-                                                <?php echo $disk['country_id'] == $country['id'] ? 'selected' : ''; ?>>
+                                                    <?php echo $country['is_fake_prone'] ? 'data-fake-prone="true"' : ''; ?>
+                                                    <?php echo $disk['country_id'] == $country['id'] ? 'selected' : ''; ?>>
                                                 <?php echo htmlspecialchars($country['country_name']); ?>
                                                 <?php echo $country['is_fake_prone'] ? ' ■■' : ''; ?>
                                             </option>
@@ -377,7 +382,7 @@ include 'includes/header.php';
                                     </optgroup>
                                 <?php endforeach; ?>
                             </select>
-                            <div id="fake_warning" class="alert alert-warning" style="display: <?php echo ($disk['is_imported'] && $disk['is_fake_prone']) ? 'block' : 'none'; ?>; margin-top: 1rem;">
+                            <div id="fake_warning" class="alert alert-warning" style="display: <?php echo ($disk['country_id'] && $disk['is_fake_prone']) ? 'block' : 'none'; ?>;">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 <div>
                                     <strong>Atenção!</strong>
@@ -387,6 +392,7 @@ include 'includes/header.php';
                         </div>
                     </div>
                 </div>
+
                 <!-- Edição -->
                 <div class="form-section">
                     <div class="section-header">
@@ -422,6 +428,7 @@ include 'includes/header.php';
                         </label>
                     </div>
                 </div>
+
                 <!-- Condição -->
                 <div class="form-section">
                     <div class="section-header">
@@ -438,13 +445,13 @@ include 'includes/header.php';
                             </label>
                             <select id="condition_disk" name="condition_disk" class="form-select" required>
                                 <option value="">Selecione a condição</option>
-                                <option value="Mint" <?php echo $disk['condition_disk'] === 'Mint' ? 'selected' : ''; ?>>Mint - Perfeito</option>
-                                <option value="E+" <?php echo $disk['condition_disk'] === 'E+' ? 'selected' : ''; ?>>E+ - Excelente+</option>
-                                <option value="E" <?php echo $disk['condition_disk'] === 'E' ? 'selected' : ''; ?>>E - Excelente</option>
-                                <option value="VG+" <?php echo $disk['condition_disk'] === 'VG+' ? 'selected' : ''; ?>>VG+ - Muito Bom+</option>
-                                <option value="VG" <?php echo $disk['condition_disk'] === 'VG' ? 'selected' : ''; ?>>VG - Muito Bom</option>
-                                <option value="G+" <?php echo $disk['condition_disk'] === 'G+' ? 'selected' : ''; ?>>G+ - Bom+</option>
-                                <option value="G" <?php echo $disk['condition_disk'] === 'G' ? 'selected' : ''; ?>>G - Bom</option>
+                                <option value="Mint" <?php echo $disk['condition_disk'] === 'Mint' ? 'selected' : ''; ?>>Mint</option>
+                                <option value="E+" <?php echo $disk['condition_disk'] === 'E+' ? 'selected' : ''; ?>>E+</option>
+                                <option value="E" <?php echo $disk['condition_disk'] === 'E' ? 'selected' : ''; ?>>E</option>
+                                <option value="VG+" <?php echo $disk['condition_disk'] === 'VG+' ? 'selected' : ''; ?>>VG+</option>
+                                <option value="VG" <?php echo $disk['condition_disk'] === 'VG' ? 'selected' : ''; ?>>VG</option>
+                                <option value="G+" <?php echo $disk['condition_disk'] === 'G+' ? 'selected' : ''; ?>>G+</option>
+                                <option value="G" <?php echo $disk['condition_disk'] === 'G' ? 'selected' : ''; ?>>G</option>
                             </select>
                             <div class="condition-info">
                                 <p><strong>Mint:</strong> Estado perfeito, sem uso aparente</p>
@@ -457,13 +464,13 @@ include 'includes/header.php';
                             </label>
                             <select id="condition_cover" name="condition_cover" class="form-select" required>
                                 <option value="">Selecione a condição</option>
-                                <option value="Mint" <?php echo $disk['condition_cover'] === 'Mint' ? 'selected' : ''; ?>>Mint - Perfeito</option>
-                                <option value="E+" <?php echo $disk['condition_cover'] === 'E+' ? 'selected' : ''; ?>>E+ - Excelente+</option>
-                                <option value="E" <?php echo $disk['condition_cover'] === 'E' ? 'selected' : ''; ?>>E - Excelente</option>
-                                <option value="VG+" <?php echo $disk['condition_cover'] === 'VG+' ? 'selected' : ''; ?>>VG+ - Muito Bom+</option>
-                                <option value="VG" <?php echo $disk['condition_cover'] === 'VG' ? 'selected' : ''; ?>>VG - Muito Bom</option>
-                                <option value="G+" <?php echo $disk['condition_cover'] === 'G+' ? 'selected' : ''; ?>>G+ - Bom+</option>
-                                <option value="G" <?php echo $disk['condition_cover'] === 'G' ? 'selected' : ''; ?>>G - Bom</option>
+                                <option value="Mint" <?php echo $disk['condition_cover'] === 'Mint' ? 'selected' : ''; ?>>Mint</option>
+                                <option value="E+" <?php echo $disk['condition_cover'] === 'E+' ? 'selected' : ''; ?>>E+</option>
+                                <option value="E" <?php echo $disk['condition_cover'] === 'E' ? 'selected' : ''; ?>>E</option>
+                                <option value="VG+" <?php echo $disk['condition_cover'] === 'VG+' ? 'selected' : ''; ?>>VG+</option>
+                                <option value="VG" <?php echo $disk['condition_cover'] === 'VG' ? 'selected' : ''; ?>>VG</option>
+                                <option value="G+" <?php echo $disk['condition_cover'] === 'G+' ? 'selected' : ''; ?>>G+</option>
+                                <option value="G" <?php echo $disk['condition_cover'] === 'G' ? 'selected' : ''; ?>>G</option>
                             </select>
                         </div>
                     </div>
@@ -479,7 +486,7 @@ include 'includes/header.php';
                             </div>
                         </label>
                     </div>
-                     <!-- NOVO: Opção para marcar como favorito -->
+                    <!-- Opção para marcar como favorito -->
                     <div class="favorite-option <?php echo $disk['is_favorite'] ? 'selected' : ''; ?>">
                         <input type="checkbox" id="is_favorite" name="is_favorite" <?php echo $disk['is_favorite'] ? 'checked' : ''; ?>>
                         <label for="is_favorite" class="favorite-label">
@@ -493,6 +500,7 @@ include 'includes/header.php';
                         </label>
                     </div>
                 </div>
+
                 <!-- Itens Extras -->
                 <div class="form-section">
                     <div class="section-header">
@@ -545,9 +553,10 @@ include 'includes/header.php';
                             Outros Itens Extras
                         </label>
                         <textarea id="other_extras" name="other_extras" class="form-textarea"
-                            placeholder="Descreva outros itens extras que acompanham o disco..."><?php echo htmlspecialchars($disk['other_extras']); ?></textarea>
+                                  placeholder="Descreva outros itens extras que acompanham o disco..."><?php echo htmlspecialchars($disk['other_extras']); ?></textarea>
                     </div>
                 </div>
+
                 <!-- BoxSet Específico -->
                 <div class="boxset-section" id="boxset_section" style="display: <?php echo $disk['type'] === 'BoxSet' ? 'block' : 'none'; ?>;">
                     <div class="section-header">
@@ -576,7 +585,7 @@ include 'includes/header.php';
                                     Número da Edição
                                 </label>
                                 <input type="number" id="edition_number" name="edition_number" class="form-input"
-                                    placeholder="Ex: 1234" min="1" value="<?php echo $disk['edition_number']; ?>">
+                                       placeholder="Ex: 1234" min="1" value="<?php echo $disk['edition_number']; ?>">
                             </div>
                             <div class="form-group">
                                 <label class="form-label" for="total_editions">
@@ -584,7 +593,7 @@ include 'includes/header.php';
                                     Total de Edições
                                 </label>
                                 <input type="number" id="total_editions" name="total_editions" class="form-input"
-                                    placeholder="Ex: 5000" min="1" value="<?php echo $disk['total_editions']; ?>">
+                                       placeholder="Ex: 5000" min="1" value="<?php echo $disk['total_editions']; ?>">
                             </div>
                         </div>
                     </div>
@@ -594,9 +603,10 @@ include 'includes/header.php';
                             Itens Especiais do BoxSet
                         </label>
                         <textarea id="special_items" name="special_items" class="form-textarea"
-                            placeholder="Descreva os itens especiais incluídos no BoxSet..."><?php echo htmlspecialchars($disk['special_items']); ?></textarea>
+                                  placeholder="Descreva os itens especiais incluídos no BoxSet..."><?php echo htmlspecialchars($disk['special_items']); ?></textarea>
                     </div>
                 </div>
+
                 <!-- Observações -->
                 <div class="observations-section">
                     <div class="section-header">
@@ -611,9 +621,10 @@ include 'includes/header.php';
                             Observações
                         </label>
                         <textarea id="observations" name="observations" class="form-textarea"
-                            placeholder="Adicione observações sobre raridade, características especiais,..."><?php echo htmlspecialchars($disk['observations']); ?></textarea>
+                                  placeholder="Adicione observações sobre raridade, características especiais, etc."> <?php echo htmlspecialchars($disk['observations']); ?></textarea>
                     </div>
                 </div>
+
                 <!-- Navegação do Formulário -->
                 <div class="form-navigation">
                     <a href="disk_details.php?id=<?php echo $disk_id; ?>" class="btn btn-secondary">
@@ -630,270 +641,280 @@ include 'includes/header.php';
     </div>
 </main>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Mostrar/ocultar campos de importação
-        const originRadios = document.querySelectorAll('input[name="is_imported"]');
-        const importFields = document.getElementById('import_fields');
-        const countrySelect = document.getElementById('country_id');
-        const fakeWarning = document.getElementById('fake_warning');
+document.addEventListener('DOMContentLoaded', function() {
+    // Mostrar/ocultar campos de importação
+    const originRadios = document.querySelectorAll('input[name="is_imported"]');
+    const importFields = document.getElementById('import_fields');
+    const countrySelect = document.getElementById('country_id');
+    const fakeWarning = document.getElementById('fake_warning');
 
-        originRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (this.value === '1') {
-                    importFields.style.display = 'block';
-                    countrySelect.required = true;
-                } else {
-                    importFields.style.display = 'none';
-                    countrySelect.required = false;
-                    countrySelect.value = '';
-                    fakeWarning.style.display = 'none';
+    originRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === '1') {
+                importFields.style.display = 'block';
+                countrySelect.required = true;
+                // Dispara a verificação de aviso ao selecionar importado, caso o país já esteja preenchido
+                const selectedOption = countrySelect.options[countrySelect.selectedIndex];
+                if (selectedOption && selectedOption.dataset.fakeProne === 'true') {
+                    fakeWarning.style.display = 'block';
                 }
-                 originRadios.forEach(r => r.closest('.origin-option').classList.remove('selected'));
-                this.closest('.origin-option').classList.add('selected');
-            });
-        });
-
-        // Aviso para países propensos a falsificação
-        countrySelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption && selectedOption.dataset.fakeProne === 'true') {
-                fakeWarning.style.display = 'block';
             } else {
+                importFields.style.display = 'none';
+                countrySelect.required = false;
+                // Não limpamos o valor para manter o estado, mas escondemos o aviso
                 fakeWarning.style.display = 'none';
             }
+            originRadios.forEach(r => r.closest('.origin-option').classList.remove('selected'));
+            this.closest('.origin-option').classList.add('selected');
         });
-
-        // Mostrar/ocultar seção BoxSet
-        const typeRadios = document.querySelectorAll('input[name="type"]');
-        const boxsetSection = document.getElementById('boxset_section');
-        typeRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (this.value === 'BoxSet') {
-                    boxsetSection.style.display = 'block';
-                } else {
-                    boxsetSection.style.display = 'none';
-                }
-                typeRadios.forEach(r => r.closest('.media-option').classList.remove('selected'));
-                this.closest('.media-option').classList.add('selected');
-            });
-        });
-
-        // Mostrar/ocultar campos de edição limitada
-        const limitedCheckbox = document.getElementById('is_limited_edition');
-        const limitedFields = document.getElementById('limited_fields');
-        if (limitedCheckbox) {
-            limitedCheckbox.addEventListener('change', function() {
-                if (this.checked) {
-                    limitedFields.style.display = 'block';
-                } else {
-                    limitedFields.style.display = 'none';
-                }
-                this.closest('.limited-edition-option').classList.toggle('selected', this.checked);
-            });
-        }
-
-        // Adicionar classes visuais aos radio buttons de edição
-        document.querySelectorAll('input[name="edition"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                document.querySelectorAll('input[name="edition"]').forEach(r => {
-                    r.closest('.edition-option').classList.remove('selected');
-                });
-                this.closest('.edition-option').classList.add('selected');
-            });
-        });
-
-        // Adicionar classes visuais aos checkboxes (sealed, extra-item, favorite-option)
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const container = this.closest('.extra-item, .sealed-option, .limited-edition-option, .favorite-option');
-                if (container) {
-                    if (this.checked) {
-                        container.classList.add('selected');
-                    } else {
-                        container.classList.remove('selected');
-                    }
-                }
-            });
-        });
-
-        // NOVO: Preview de imagem para edição
-        const diskImageInput = document.getElementById('disk_image');
-        const imagePreviewContainer = document.getElementById('image_preview');
-        const imagePreview = imagePreviewContainer.querySelector('img');
-        const removeImageBtn = imagePreviewContainer.querySelector('.remove-image-btn');
-        const keepExistingImageHiddenInput = document.getElementById('keep_existing_image');
-
-        // Se já existe uma imagem, exibi-la
-        if (imagePreview.src && imagePreview.src !== window.location.href + '#') { // Verifica se a URL da imagem não é apenas a âncora
-            imagePreviewContainer.style.display = 'flex';
-        }
-
-        diskImageInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imagePreview.src = e.target.result;
-                    imagePreviewContainer.style.display = 'flex';
-                    keepExistingImageHiddenInput.value = 'true'; // Reset para true se uma nova imagem for selecionada
-                };
-                reader.readAsDataURL(this.files[0]);
-            } else {
-                // Se o input de arquivo é limpo, mas a imagem anterior existia, a mantemos.
-                // O valor de keep_existing_image será definido para 'false' apenas se o botão de remover for clicado.
-                if (!imagePreview.src || imagePreview.src === window.location.href + '#') {
-                     imagePreviewContainer.style.display = 'none';
-                }
-            }
-        });
-
-        removeImageBtn.addEventListener('click', function() {
-            diskImageInput.value = ''; // Limpa o input de arquivo
-            imagePreviewContainer.style.display = 'none';
-            imagePreview.src = '#';
-            keepExistingImageHiddenInput.value = 'false'; // Indica que a imagem existente deve ser removida
-        });
-
-        // Lógica de descrição de condição para select condition_disk
-        const conditionDiskSelect = document.getElementById('condition_disk');
-        const conditionInfoDiv = document.querySelector('.condition-info p');
-        const conditionDescriptions = {
-            'Mint': 'Estado perfeito, como novo, sem nenhum defeito visível',
-            'E+': 'Excelente estado com sinais mínimos de uso',
-            'E': 'Excelente estado com pequenos sinais de uso',
-            'VG+': 'Muito bom estado com alguns sinais de uso',
-            'VG': 'Muito bom estado com sinais moderados de uso',
-            'G+': 'Bom estado com sinais evidentes de uso',
-            'G': 'Bom estado com sinais consideráveis de uso'
-        };
-
-        function updateConditionDescription() {
-            const selectedCondition = conditionDiskSelect.value;
-            if (selectedCondition && conditionDescriptions[selectedCondition]) {
-                conditionInfoDiv.innerHTML = `<strong>${selectedCondition}:</strong> ${conditionDescriptions[selectedCondition]}`;
-            } else {
-                conditionInfoDiv.innerHTML = `<strong>Mint:</strong> Estado perfeito, sem uso aparente`; // Padrão ou vazio
-            }
-        }
-
-        conditionDiskSelect.addEventListener('change', updateConditionDescription);
-        updateConditionDescription(); // Chama na carga inicial para garantir que a descrição esteja correta
     });
+
+    // Aviso para países propensos a falsificação
+    countrySelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption && selectedOption.dataset.fakeProne === 'true') {
+            fakeWarning.style.display = 'block';
+        } else {
+            fakeWarning.style.display = 'none';
+        }
+    });
+
+    // Mostrar/ocultar seção BoxSet
+    const typeRadios = document.querySelectorAll('input[name="type"]');
+    const boxsetSection = document.getElementById('boxset_section');
+
+    typeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'BoxSet') {
+                boxsetSection.style.display = 'block';
+            } else {
+                boxsetSection.style.display = 'none';
+            }
+            typeRadios.forEach(r => r.closest('.media-option').classList.remove('selected'));
+            this.closest('.media-option').classList.add('selected');
+        });
+    });
+
+    // Mostrar/ocultar campos de edição limitada
+    const limitedCheckbox = document.getElementById('is_limited_edition');
+    const limitedFields = document.getElementById('limited_fields');
+    if (limitedCheckbox) {
+        limitedCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                limitedFields.style.display = 'block';
+            } else {
+                limitedFields.style.display = 'none';
+            }
+            this.closest('.limited-edition-option').classList.toggle('selected', this.checked);
+        });
+        // Inicializar estado do limited_fields
+        if (!limitedCheckbox.checked) {
+            limitedFields.style.display = 'none';
+        }
+    }
+
+    // Adicionar classes visuais aos radio buttons de edição
+    document.querySelectorAll('input[name="edition"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('input[name="edition"]').forEach(r => {
+                r.closest('.edition-option').classList.remove('selected');
+            });
+            this.closest('.edition-option').classList.add('selected');
+        });
+    });
+
+    // Adicionar classes visuais aos checkboxes (sealed, extra-item, favorite-option)
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const container = this.closest('.extra-item, .sealed-option, .limited-edition-option, .favorite-option');
+            if (container) {
+                if (this.checked) {
+                    container.classList.add('selected');
+                } else {
+                    container.classList.remove('selected');
+                }
+            }
+        });
+    });
+
+    // Preview de imagem para edição
+    const diskImageInput = document.getElementById('disk_image');
+    const imagePreviewContainer = document.getElementById('image_preview');
+    const imagePreview = imagePreviewContainer.querySelector('img');
+    const removeImageBtn = imagePreviewContainer.querySelector('.remove-image-btn');
+    const keepExistingImageHiddenInput = document.getElementById('keep_existing_image');
+
+    // Se já existe uma imagem, exibi-la
+    if (imagePreview.src && imagePreview.src !== window.location.href + '#') {
+        imagePreviewContainer.style.display = 'flex';
+    }
+
+    diskImageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreviewContainer.style.display = 'flex';
+                keepExistingImageHiddenInput.value = 'true'; // Reset para true se uma nova imagem foi selecionada
+            };
+            reader.readAsDataURL(this.files[0]);
+        } else {
+            // Se o input de arquivo é limpo, mas a imagem anterior existia, a mantemos.
+            // O valor de keep_existing_image será definido para 'false' apenas se o botão de remover for clicado.
+            if (!imagePreview.src || imagePreview.src === window.location.href + '#') {
+                imagePreviewContainer.style.display = 'none';
+            }
+        }
+    });
+
+    removeImageBtn.addEventListener('click', function() {
+        diskImageInput.value = ''; // Limpa o input de arquivo
+        imagePreviewContainer.style.display = 'none';
+        imagePreview.src = '#';
+        keepExistingImageHiddenInput.value = 'false'; // Indica que a imagem existente deve ser removida
+    });
+
+    // Lógica de descrição de condição para select condition_disk
+    const conditionDiskSelect = document.getElementById('condition_disk');
+    const conditionInfoDiv = document.querySelector('.condition-info p');
+    const conditionDescriptions = {
+        'Mint': 'Estado perfeito, como novo, sem nenhum defeito visível',
+        'E+': 'Excelente estado com sinais mínimos de uso',
+        'E': 'Excelente estado com pequenos sinais de uso',
+        'VG+': 'Muito bom estado com alguns sinais de uso',
+        'VG': 'Muito bom estado com sinais moderados de uso',
+        'G+': 'Bom estado com sinais evidentes de uso',
+        'G': 'Bom estado com sinais consideráveis de uso'
+    };
+
+    function updateConditionDescription() {
+        const selectedCondition = conditionDiskSelect.value;
+        if (selectedCondition && conditionDescriptions[selectedCondition]) {
+            conditionInfoDiv.innerHTML = `<strong>${selectedCondition}:</strong> ${conditionDescriptions[selectedCondition]}`;
+        } else {
+            conditionInfoDiv.innerHTML = `<strong>Mint:</strong> Estado perfeito, sem uso aparente`;
+        }
+    }
+
+    conditionDiskSelect.addEventListener('change', updateConditionDescription);
+    updateConditionDescription(); // Chama na carga inicial para garantir que a descrição esteja correta
+});
 </script>
 <style>
-    /* Estilos existentes */
-    .page-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: linear-gradient(90deg, var(--color-warning) 0%, var(--color-secondary) 100%);
-        border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
-    }
-    .page-header {
-        position: relative;
-    }
-    .page-icon {
-        background: linear-gradient(135deg, var(--color-warning) 0%, var(--color-secondary) 100%);
-    }
-    .form-input:focus,
-    .form-select:focus,
-    .form-textarea:focus {
-        border-color: var(--color-warning);
-        box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
-    }
-    .btn-success {
-        background: linear-gradient(135deg, var(--color-warning) 0%, #f57c00 100%);
-        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-    }
-    .btn-success:hover {
-        box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
-    }
-    /* NOVO: Estilos para preview de imagem (repetido do register_disk.php, garantir consistência) */
-    .image-preview {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-top: 1.5rem;
-        border: 1px dashed rgba(255, 107, 53, 0.3);
-        border-radius: var(--border-radius);
-        padding: 1rem;
-        background: var(--color-background);
-        position: relative;
-    }
-    .image-preview img {
-        max-width: 100%;
-        height: 200px;
-        object-fit: contain;
-        border-radius: var(--border-radius);
-        margin-bottom: 1rem;
-    }
-    .image-preview .remove-image-btn {
-        background: var(--color-error);
-        color: var(--color-white);
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: var(--border-radius);
-        cursor: pointer;
-        font-size: 0.9rem;
-        transition: var(--transition);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .image-preview .remove-image-btn:hover {
-        background: #d32f2f;
-        transform: translateY(-2px);
-    }
-    /* NOVO: Estilos para opção de favorito */
-    .favorite-option {
-        background: var(--color-background);
-        border: 2px solid rgba(255, 215, 63, 0.2); /* Cor do accent para favorito */
-        border-radius: var(--border-radius);
-        padding: 1.5rem;
-        cursor: pointer;
-        transition: var(--transition);
-        position: relative;
-        margin-top: 1.5rem; /* Separar um pouco do sealed-option */
-    }
-    .favorite-option:hover {
-        border-color: var(--color-accent);
-        transform: translateY(-3px);
-        box-shadow: var(--shadow-medium);
-    }
-    .favorite-option input[type="checkbox"] {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-    }
-    .favorite-option.selected {
-        border-color: var(--color-accent);
-        background: rgba(255, 215, 63, 0.1);
-    }
-    .favorite-option.selected .favorite-info h3 {
-        color: var(--color-accent);
-    }
-    .favorite-label {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        cursor: pointer;
-    }
-    .favorite-icon {
-        font-size: 1.5rem;
-        color: var(--color-accent);
-    }
-    .favorite-info h3 {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--color-text);
-        margin-bottom: 0.25rem;
-        transition: var(--transition);
-    }
-    .favorite-info p {
-        color: var(--color-text-secondary);
-        font-size: 0.85rem;
-    }
+/* Estilos existentes */
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-warning) 0%, var(--color-secondary) 100%);
+    border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
+}
+.page-header {
+    position: relative;
+}
+.page-icon {
+    background: linear-gradient(135deg, var(--color-warning) 0%, var(--color-secondary) 100%);
+}
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    border-color: var(--color-warning);
+    box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
+}
+.btn-success {
+    background: linear-gradient(135deg, var(--color-warning) 0%, #f57c00 100%);
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+}
+.btn-success:hover {
+    box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+}
+/* Estilos para preview de imagem (repetido do register_disk.php, garantir consistência) */
+.image-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 1.5rem;
+    border: 1px dashed rgba(255, 107, 53, 0.3);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    background: var(--color-background);
+    position: relative;
+}
+.image-preview img {
+    max-width: 100%;
+    height: 200px;
+    object-fit: contain;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+}
+.image-preview .remove-image-btn {
+    background: var(--color-error);
+    color: var(--color-white);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.image-preview .remove-image-btn:hover {
+    background: #d32f2f;
+    transform: translateY(-2px);
+}
+/* Estilos para opção de favorito */
+.favorite-option {
+    background: var(--color-background);
+    border: 2px solid rgba(255, 215, 63, 0.2); /* Cor do accent para favorito */
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    margin-top: 1.5rem; /* Separar um pouco do sealed-option */
+}
+.favorite-option:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+}
+.favorite-option input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.favorite-option.selected {
+    border-color: var(--color-accent);
+    background: rgba(255, 215, 63, 0.1);
+}
+.favorite-option.selected .favorite-info h3 {
+    color: var(--color-accent);
+}
+.favorite-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+}
+.favorite-icon {
+    font-size: 1.5rem;
+    color: var(--color-accent);
+}
+.favorite-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+    transition: var(--transition);
+}
+.favorite-info p {
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+}
 </style>
 <?php include 'includes/footer.php'; ?>
