@@ -5,6 +5,12 @@ require_once 'includes/functions.php';
 // Verificar se está logado
 requireLogin();
 
+// NOVO: Conectar ao banco para verificar permissões
+require_once 'config/database.php';
+$database = new Database();
+$pdo = $database->getConnection();
+$current_user = getCurrentUser($pdo);
+
 // Verificar se é uma requisição POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -21,48 +27,50 @@ if (!verifyCSRFToken($csrf_token)) {
 }
 
 $disk_id = (int)($_POST['disk_id'] ?? 0);
-
 if (empty($disk_id)) {
     echo json_encode(['success' => false, 'message' => 'ID do disco não fornecido']);
     exit();
 }
 
 try {
-    require_once 'config/database.php';
-    $database = new Database();
-    $pdo = $database->getConnection();
-    
-    // Verificar se o disco pertence ao usuário
-    $stmt = $pdo->prepare("SELECT id FROM disks WHERE id = ? AND user_id = ?");
-    $stmt->execute([$disk_id, $_SESSION['user_id']]);
-    
-    if (!$stmt->fetch()) {
-        echo json_encode(['success' => false, 'message' => 'Disco não encontrado ou acesso negado']);
+    // Verificar se o disco pertence ao usuário e se o usuário tem permissão para deletá-lo
+    $stmt = $pdo->prepare("SELECT user_id FROM disks WHERE id = ?");
+    $stmt->execute([$disk_id]);
+    $disk_owner = $stmt->fetchColumn();
+
+    if (!$disk_owner) {
+        echo json_encode(['success' => false, 'message' => 'Disco não encontrado.']);
         exit();
     }
-    
+
+    // NOVO: Regra de permissão para exclusão
+    // Apenas o dono do disco ou um administrador global pode excluir
+    if ($disk_owner !== $_SESSION['user_id'] && !$current_user['is_admin']) {
+        echo json_encode(['success' => false, 'message' => 'Você não tem permissão para excluir este disco.']);
+        exit();
+    }
+
     $pdo->beginTransaction();
-    
+
+    // NOVO: Excluir imagem associada ao disco antes de remover os registros
+    deleteDiskImage($pdo, $disk_id, $disk_owner); // Passa o ID do dono do disco
+
     // Excluir registros relacionados primeiro
     $stmt = $pdo->prepare("DELETE FROM disk_extras WHERE disk_id = ?");
     $stmt->execute([$disk_id]);
-    
     $stmt = $pdo->prepare("DELETE FROM boxset_details WHERE disk_id = ?");
     $stmt->execute([$disk_id]);
-    
+
     // Excluir o disco
     $stmt = $pdo->prepare("DELETE FROM disks WHERE id = ? AND user_id = ?");
-    $stmt->execute([$disk_id, $_SESSION['user_id']]);
-    
+    $stmt->execute([$disk_id, $disk_owner]); // Garante que apenas o dono correto (ou admin) pode deletar
+
     $pdo->commit();
-    
     echo json_encode(['success' => true, 'message' => 'Disco excluído com sucesso']);
-    
 } catch (Exception $e) {
     if (isset($pdo)) {
         $pdo->rollBack();
     }
-    
     error_log("Erro ao excluir disco: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Erro interno do servidor']);
 }
