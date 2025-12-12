@@ -1,8 +1,6 @@
 <?php
 // includes/functions.php
-session_start();
-
-// Verificar se usuário está logado
+session_start(); // Verificar se usuário está logado
 function isLoggedIn() {
     return isset($_SESSION['user_id']);
 }
@@ -106,11 +104,9 @@ function getCurrentUser($pdo) {
             'full_name' => $_SESSION['full_name'],
         ];
     }
-
     $stmt = $pdo->prepare("SELECT id, username, email, full_name FROM users WHERE id = ?");
     $stmt->execute([$_SESSION['user_id']]);
     $user_data = $stmt->fetch();
-
     if ($user_data) {
         $_SESSION['username'] = $user_data['username'];
         $_SESSION['email'] = $user_data['email'];
@@ -217,7 +213,6 @@ function deleteDiskImage($pdo, $disk_id, $user_id) {
     $stmt = $pdo->prepare("SELECT image_path FROM disks WHERE id = ? AND user_id = ?");
     $stmt->execute([$disk_id, $user_id]);
     $disk = $stmt->fetch();
-
     if ($disk && $disk['image_path'] && file_exists($disk['image_path'])) {
         unlink($disk['image_path']); // Exclui o arquivo físico
     }
@@ -226,15 +221,26 @@ function deleteDiskImage($pdo, $disk_id, $user_id) {
 // Buscar disco por ID
 function getDiskById($pdo, $disk_id, $user_id) {
     $stmt = $pdo->prepare("
-        SELECT d.*, c.country_name, c.continent, c.is_fake_prone,
-               de.has_booklet, de.has_poster, de.has_photos,
-               de.has_extra_disk, de.has_lyrics, de.other_extras,
-               bd.is_limited_edition, bd.edition_number,
-               bd.total_editions, bd.special_items
+        SELECT
+            d.*,
+            c.country_name,
+            c.continent,
+            c.is_fake_prone,
+            de.has_booklet,
+            de.has_poster,
+            de.has_photos,
+            de.has_extra_disk,
+            de.has_lyrics,
+            de.has_obi,               -- Adicionado: Campo OBI
+            de.other_extras,
+            bd.is_limited_edition,
+            bd.edition_number,
+            bd.total_editions,
+            bd.special_items
         FROM disks d
         LEFT JOIN countries c ON d.country_id = c.id
         LEFT JOIN disk_extras de ON d.id = de.disk_id
-        LEFT JOIN boxset_details bd ON d.id = bd.disk_id -- LINHA CORRIGIDA AQUI
+        LEFT JOIN boxset_details bd ON d.id = bd.disk_id
         WHERE d.id = ? AND d.user_id = ?
     ");
     $stmt->execute([$disk_id, $user_id]);
@@ -245,8 +251,8 @@ function getDiskById($pdo, $disk_id, $user_id) {
 function updateDisk($pdo, $disk_id, $user_id, $data) {
     try {
         $pdo->beginTransaction();
-        $image_path = null;
 
+        $image_path = null;
         // Lógica para imagem: nova, manter ou remover
         if (isset($data['new_image_path']) && $data['new_image_path'] !== null) {
             deleteDiskImage($pdo, $disk_id, $user_id); // Remove a antiga
@@ -272,38 +278,44 @@ function updateDisk($pdo, $disk_id, $user_id, $data) {
             WHERE id = ? AND user_id = ?
         ");
         $stmt->execute([
-            $data['type'], $data['artist'], $data['album_name'], $data['year'], $data['label'],
-            $data['country_id'], $data['is_imported'], $data['edition'], $data['condition_disk'],
-            $data['condition_cover'], $data['is_sealed'], $data['observations'],
-            $image_path, $data['is_favorite'],
-            $disk_id, $user_id
+            $data['type'], $data['artist'], $data['album_name'], $data['year'],
+            $data['label'], $data['country_id'], $data['is_imported'],
+            $data['edition'], $data['condition_disk'], $data['condition_cover'],
+            $data['is_sealed'], $data['observations'], $image_path,
+            $data['is_favorite'], $disk_id, $user_id
         ]);
 
         // Atualizar extras
         $stmt = $pdo->prepare("
             INSERT INTO disk_extras (
-                disk_id, has_booklet, has_poster, has_photos,
-                has_extra_disk, has_lyrics, other_extras
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                disk_id, has_booklet, has_poster, has_photos, has_extra_disk,
+                has_lyrics, has_obi, other_extras              -- Adicionado: has_obi
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)                    -- Adicionado um '?'
             ON DUPLICATE KEY UPDATE
                 has_booklet = VALUES(has_booklet),
                 has_poster = VALUES(has_poster),
                 has_photos = VALUES(has_photos),
                 has_extra_disk = VALUES(has_extra_disk),
                 has_lyrics = VALUES(has_lyrics),
+                has_obi = VALUES(has_obi),                      -- Adicionado: has_obi
                 other_extras = VALUES(other_extras)
         ");
         $stmt->execute([
-            $disk_id, $data['has_booklet'], $data['has_poster'], $data['has_photos'],
-            $data['has_extra_disk'], $data['has_lyrics'], $data['other_extras']
+            $disk_id,
+            $data['has_booklet'],
+            $data['has_poster'],
+            $data['has_photos'],
+            $data['has_extra_disk'],
+            $data['has_lyrics'],
+            $data['has_obi'],                                   // Adicionado: $data['has_obi']
+            $data['other_extras']
         ]);
 
         // Se for BoxSet, atualizar detalhes específicos
         if ($data['type'] === 'BoxSet') {
             $stmt = $pdo->prepare("
                 INSERT INTO boxset_details (
-                    disk_id, is_limited_edition, edition_number,
-                    total_editions, special_items
+                    disk_id, is_limited_edition, edition_number, total_editions, special_items
                 ) VALUES (?, ?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE
                     is_limited_edition = VALUES(is_limited_edition),
@@ -312,8 +324,11 @@ function updateDisk($pdo, $disk_id, $user_id, $data) {
                     special_items = VALUES(special_items)
             ");
             $stmt->execute([
-                $disk_id, $data['is_limited_edition'], $data['edition_number'],
-                $data['total_editions'], $data['special_items']
+                $disk_id,
+                $data['is_limited_edition'],
+                $data['edition_number'],
+                $data['total_editions'],
+                $data['special_items']
             ]);
         } else {
             // Remover detalhes de BoxSet se não for mais BoxSet
@@ -334,6 +349,7 @@ function updateDisk($pdo, $disk_id, $user_id, $data) {
 function deleteDisk($pdo, $disk_id, $user_id) {
     try {
         $pdo->beginTransaction();
+
         // Verificar se o disco pertence ao usuário
         $stmt = $pdo->prepare("SELECT id FROM disks WHERE id = ? AND user_id = ?");
         $stmt->execute([$disk_id, $user_id]);
@@ -341,7 +357,7 @@ function deleteDisk($pdo, $disk_id, $user_id) {
             return false;
         }
 
-        // Excluir imagem do disco
+        // Excluir imagem do disco (se houver)
         deleteDiskImage($pdo, $disk_id, $user_id);
 
         // Excluir registros relacionados primeiro
@@ -353,6 +369,7 @@ function deleteDisk($pdo, $disk_id, $user_id) {
         // Excluir o disco
         $stmt = $pdo->prepare("DELETE FROM disks WHERE id = ? AND user_id = ?");
         $stmt->execute([$disk_id, $user_id]);
+
         $pdo->commit();
         return true;
     } catch (Exception $e) {
@@ -413,9 +430,13 @@ function searchDisks($pdo, $user_id, $filters = [], $page = 1, $per_page = 12) {
 
     // Buscar discos
     $stmt = $pdo->prepare("
-        SELECT d.*, c.country_name
+        SELECT
+            d.*,
+            c.country_name,
+            de.has_obi                                  -- Adicionado: Campo OBI para busca
         FROM disks d
         LEFT JOIN countries c ON d.country_id = c.id
+        LEFT JOIN disk_extras de ON d.id = de.disk_id   -- Adicionado: JOIN para disk_extras
         WHERE $where_clause
         ORDER BY d.created_at DESC
         LIMIT $per_page OFFSET $offset
@@ -427,6 +448,7 @@ function searchDisks($pdo, $user_id, $filters = [], $page = 1, $per_page = 12) {
     $stmt = $pdo->prepare("
         SELECT COUNT(*) as total
         FROM disks d
+        LEFT JOIN disk_extras de ON d.id = de.disk_id   -- Adicionado: JOIN para disk_extras na contagem
         WHERE $where_clause
     ");
     $stmt->execute($params);
@@ -492,3 +514,4 @@ function backupDisk($pdo, $disk_id) {
         error_log("Erro ao fazer backup do disco: " . $e->getMessage());
     }
 }
+?>

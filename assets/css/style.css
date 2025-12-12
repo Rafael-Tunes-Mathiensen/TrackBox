@@ -985,3 +985,9 @@ html {
         opacity: 1;
     }
 }
+
+/* Adicione ao final do seu TrackBox/assets/css/style.css (ou search_disks.css) */
+.badge-obi {
+    background: rgba(156, 39, 176, 0.1); /* Um tom roxo claro, pode ajustar */
+    color: #9C27B0; /* Roxo mais escuro */
+}
