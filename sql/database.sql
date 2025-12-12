@@ -93,6 +93,7 @@ CREATE TABLE IF NOT EXISTS `disk_extras` (
   `has_photos` tinyint(1) NOT NULL DEFAULT '0',
   `has_extra_disk` tinyint(1) NOT NULL DEFAULT '0',
   `has_lyrics` tinyint(1) NOT NULL DEFAULT '0',
+  `has_obi` tinyint(1) NOT NULL DEFAULT '0',
   `other_extras` text COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`disk_id`),
   CONSTRAINT `fk_disk_extras_disk` FOREIGN KEY (`disk_id`) REFERENCES `disks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE

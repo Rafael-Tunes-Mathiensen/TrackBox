@@ -728,3 +728,260 @@ html {
 .nav-link:hover i {
     transform: scale(1.1);
 }
+
+/* Estilos para busca Discogs */
+.discogs-search-container {
+    background: var(--color-background);
+    border: 1px solid rgba(255, 107, 53, 0.2);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.search-input-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-input-group .form-input {
+    flex: 1;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 2rem;
+    color: var(--color-text-secondary);
+}
+
+.loading-spinner i {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+.discogs-results {
+    margin-top: 1.5rem;
+}
+
+.discogs-results h3 {
+    color: var(--color-text);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.results-list {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.discogs-result-item {
+    background: var(--color-white);
+    border: 1px solid rgba(255, 107, 53, 0.1);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.discogs-result-item:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.discogs-result-item.selected {
+    border-color: var(--color-primary);
+    background: rgba(255, 107, 53, 0.05);
+}
+
+.result-content {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.result-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    background: var(--color-background);
+    flex-shrink: 0;
+}
+
+.result-info {
+    flex: 1;
+}
+
+.result-title {
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.result-artist {
+    color: var(--color-primary);
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.result-details {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.result-formats {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.format-tag {
+    background: var(--color-background);
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+}
+
+.use-discogs-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--color-success);
+    color: var(--color-white);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.use-discogs-btn:hover {
+    background: #27ae60;
+    transform: translateY(-1px);
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.pagination-btn {
+    background: var(--color-background);
+    border: 1px solid rgba(255, 107, 53, 0.2);
+    color: var(--color-text);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Indicador de dados preenchidos automaticamente */
+.auto-filled {
+    background: rgba(46, 204, 113, 0.1);
+    border-color: var(--color-success);
+}
+
+.auto-filled-indicator {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: var(--color-success);
+    color: var(--color-white);
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* Estilos adicionais para melhorar a experiência */
+.no-results {
+    text-align: center;
+    padding: 3rem;
+    color: var(--color-text-secondary);
+}
+
+.no-results i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.style-tag {
+    background: rgba(255, 107, 53, 0.1);
+    color: var(--color-primary);
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    max-width: 400px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-large);
+    animation: slideIn 0.3s ease-out;
+}
+
+.notification-success {
+    background: var(--color-success);
+    color: var(--color-white);
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    gap: 1rem;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.notification-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
