@@ -1,101 +1,460 @@
-<div align="center">
+# 🎵 TrackBox - Sistema de Gerenciamento de Coleção de Discos
 
-# 🎵 TrackBox
-
-**Sua Plataforma Inteligente para Organizar e Gerenciar Coleções de Música**
-
-[![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange?style=flat-square)](https://github.com)
-[![PHP](https://img.shields.io/badge/PHP-8.0+-blue?style=flat-square&logo=php)](https://php.net)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0+-blue?style=flat-square&logo=mysql)](https://mysql.com)
-[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
-[![Contributors](https://img.shields.io/badge/Contribuidores-Bem%20Vindos-brightgreen?style=flat-square)](CONTRIBUTING.md)
-
-[🌐 Visitar Site](#) • [📚 Documentação](#documentação) • [🐛 Reportar Bug](#bugs) • [✨ Sugerir Recurso](#features)
+> Um projeto desenvolvido para a disciplina de **Desenvolvimento Web**, com foco em criar uma solução prática para colecionadores de música.
 
 ---
 
-</div>
+# 📌 O Que é TrackBox?
 
-## 📋 Índice
+**TrackBox** é uma **aplicação web** que permite catalogar, organizar e gerenciar sua coleção pessoal de **CDs, LPs e BoxSets** de forma simples e intuitiva.
 
-- [Sobre o Projeto](#sobre-o-projeto)
-- [✨ Características](#-características)
-- [🎯 Funcionalidades Principais](#-funcionalidades-principais)
-- [🛠️ Tecnologias](#️-tecnologias)
-- [📋 Pré-requisitos](#-pré-requisitos)
-- [⚙️ Instalação](#️-instalação)
-- [🚀 Uso](#-uso)
-- [📁 Estrutura do Projeto](#-estrutura-do-projeto)
-- [🔐 Segurança](#-segurança)
-- [🗄️ Banco de Dados](#️-banco-de-dados)
-- [🌐 Integração Discogs](#-integração-discogs)
-- [📱 Responsividade](#-responsividade)
-- [🤝 Contribuindo](#-contribuindo)
-- [📝 Licença](#-licença)
-- [👤 Autor](#-autor)
-- [🆘 Suporte](#-suporte)
+Pense nele como um **"Spotify pessoal" para sua coleção física**.
+
+Com ele você pode:
+
+* Registrar discos com informações detalhadas
+* Fazer upload de capas e imagens
+* Buscar discos rapidamente
+* Visualizar estatísticas da coleção
+* Marcar discos como favoritos
 
 ---
 
-## 📖 Sobre o Projeto
+# 🎯 Por Que Usar?
 
-**TrackBox** é uma aplicação web moderna e intuitiva desenvolvida para colecionadores de música que desejam manter sua coleção de CDs, LPs e BoxSets perfeitamente organizada e documentada.
+✅ **Controle Total**
+Saiba exatamente o que existe na sua coleção.
 
-O TrackBox permite que você:
+✅ **Fácil de Usar**
+Interface simples e intuitiva.
 
-- 🎵 **Cadastre seus discos** com informações detalhadas (artista, álbum, ano, gravadora, país de origem)
-- 🖼️ **Armazene capas de discos** com upload de imagens
-- 🌍 **Identifique edições internacionais** marcando discos importados e alertando sobre países conhecidos por falsificações
-- ⭐ **Avalie condições** de discos e capas usando padrões internacionais (G, VG, E, Mint)
-- 🔒 **Marque discos lacrados** para preservar raridades
-- 💎 **Gerencie BoxSets especiais** com edições limitadas e numeradas
-- 🔍 **Pesquise rapidamente** sua coleção com múltiplos filtros
-- 📊 **Visualize estatísticas** sobre sua coleção com gráficos interativos
-- 🤖 **Autocompletar cadastros** via integração com a API do Discogs
-- ❤️ **Marque favoritos** para acessar rapidamente seus discos preferidos
+✅ **Busca Inteligente**
+Encontre discos rapidamente utilizando filtros.
 
----
+✅ **Visual Atraente**
+Design moderno e responsivo.
 
-## ✨ Características
-
-### 🎨 Interface Moderna e Responsiva
-
-- Design limpo e intuitivo com gradientes sofisticados
-- Tema escuro otimizado para conforto visual
-- Totalmente responsivo para desktop, tablet e mobile
-- Animações suaves e transições fluidas
-- Ícones Font Awesome integrados
-
-### 🔐 Segurança Robusta
-
-- Autenticação segura com hash de senha (bcrypt)
-- Proteção contra CSRF (Cross-Site Request Forgery)
-- Sanitização de entrada de dados
-- Validação em cliente e servidor
-- Prepared Statements para prevenir SQL Injection
-
-### ⚡ Performance Otimizada
-
-- Paginação eficiente de resultados
-- Compressão de imagens
-- Cache inteligente de dados
-- Queries otimizadas com índices de banco de dados
-
-### 🌐 Integração com Discogs
-
-- Busca automática de discos por artista e álbum
-- Preenchimento automático de campos
-- Download de capas em alta qualidade
-- Sincronização com banco de dados
-
-### 📱 Multiplataforma
-
-- Funciona em navegadores modernos (Chrome, Firefox, Safari, Edge)
-- Aplicação web progressiva (PWA ready)
-- Suporte offline planejado para futuras versões
+✅ **Integração com Discogs**
+Busca automática de discos e capas.
 
 ---
 
-## 🎯 Funcionalidades Principais
+# 🔧 Tecnologias Utilizadas
 
-### 👤 Autenticação e Gerenciamento de Usuários
+| Tecnologia      | Uso                          |
+| --------------- | ---------------------------- |
+| **PHP 8.0+**    | Backend da aplicação         |
+| **MySQL 8.0+**  | Banco de dados               |
+| **HTML5**       | Estrutura das páginas        |
+| **CSS3**        | Estilização e responsividade |
+| **JavaScript**  | Interatividade               |
+| **API Discogs** | Busca automática de discos   |
+
+---
+
+# ✨ Funcionalidades Principais
+
+## 🎸 Cadastro de Discos
+
+* Adicionar **CDs, LPs e BoxSets**
+* Informações completas:
+
+  * Artista
+  * Álbum
+  * Ano
+  * Gravadora
+  * País
+* Upload de capas e imagens
+
+---
+
+## 🔍 Busca e Filtros
+
+* Busca por **artista ou álbum**
+* Filtro por **tipo de mídia**
+* Filtro por **condição**
+* Filtro por **país**
+* Marcar discos como **favoritos**
+
+---
+
+## 📊 Dashboard
+
+O painel principal mostra:
+
+* Total de discos cadastrados
+* Estatísticas por tipo de mídia
+* Últimos discos adicionados
+* Acesso rápido às principais funções
+
+---
+
+## 🤖 Busca Automática (Discogs)
+
+Integração com a API do **Discogs**.
+
+Fluxo:
+
+1. Digite o nome do disco
+2. A aplicação busca na API
+3. Escolha um resultado
+4. Os dados são preenchidos automaticamente
+5. A capa é baixada automaticamente
+
+---
+
+## ⭐ Recursos Extras
+
+* Marcar discos como **favoritos**
+* Marcar discos **lacrados**
+* Identificar **edições importadas**
+* Avaliar condição do disco
+* Gerenciar **edições limitadas de BoxSets**
+
+---
+
+# 💻 Como Instalar e Testar
+
+## 1️⃣ Preparar o Ambiente
+
+Você vai precisar de:
+
+* **PHP 8.0+**
+* **MySQL 8.0+**
+* Navegador moderno (Chrome, Firefox, Edge, Safari)
+
+Se não tiver:
+
+### Windows
+
+Instale o **XAMPP**
+
+https://www.apachefriends.org/
+
+### Mac
+
+* XAMPP
+* MAMP
+
+https://www.mamp.info/
+
+### Linux
+
+```
+sudo apt install php mysql-server
+```
+
+---
+
+# 2️⃣ Baixar o Projeto
+
+```
+git clone https://github.com/seu-usuario/TrackBox.git
+cd TrackBox
+```
+
+Ou baixe o **ZIP** do repositório.
+
+---
+
+# 3️⃣ Configurar Banco de Dados
+
+## Opção A — phpMyAdmin
+
+1. Acesse:
+
+```
+http://localhost/phpmyadmin
+```
+
+2. Clique em **Novo**
+3. Nome do banco:
+
+```
+trackbox
+```
+
+4. Clique em **Importar**
+5. Selecione:
+
+```
+sql/trackbox_db.sql
+```
+
+6. Execute.
+
+---
+
+## Opção B — Terminal
+
+```
+mysql -u root -p
+```
+
+Depois execute:
+
+```
+CREATE DATABASE trackbox;
+USE trackbox;
+SOURCE caminho/ate/sql/trackbox_db.sql;
+EXIT;
+```
+
+---
+
+# 4️⃣ Configurar Conexão com Banco
+
+Abra:
+
+```
+config/database.php
+```
+
+Configure:
+
+```
+<?php
+
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', 'sua-senha');
+define('DB_NAME', 'trackbox');
+
+?>
+```
+
+---
+
+# 5️⃣ Criar Pasta de Upload
+
+No terminal:
+
+```
+mkdir uploads/disks
+```
+
+Ou manualmente:
+
+```
+uploads/
+   └── disks/
+```
+
+---
+
+# 6️⃣ Iniciar o Servidor
+
+## Usando XAMPP
+
+1. Inicie **Apache**
+2. Inicie **MySQL**
+
+Acesse:
+
+```
+http://localhost/TrackBox
+```
+
+---
+
+## Usando PHP interno
+
+```
+php -S localhost:8000
+```
+
+Depois acesse:
+
+```
+http://localhost:8000
+```
+
+---
+
+# 7️⃣ Primeiro Acesso
+
+1. Abra a aplicação
+2. Clique em **Cadastrar-se**
+3. Crie sua conta
+
+Dados necessários:
+
+* Nome
+* Email
+* Senha (mínimo 8 caracteres)
+
+Depois faça **login**.
+
+---
+
+# 🚀 Como Usar
+
+## Cadastrar Disco
+
+1. Clique em **Cadastrar Disco**
+2. Escolha o tipo:
+
+   * CD
+   * LP
+   * BoxSet
+3. Preencha os dados
+4. Faça upload da capa
+5. Salve
+
+---
+
+## Usar Busca Discogs
+
+Digite algo como:
+
+```
+Pink Floyd Dark Side
+```
+
+Escolha um resultado e os dados serão preenchidos automaticamente.
+
+---
+
+## Pesquisar Discos
+
+Na página **Minha Coleção** você pode:
+
+* Buscar por artista
+* Buscar por álbum
+* Filtrar por tipo
+* Filtrar por país
+* Filtrar por condição
+
+---
+
+# 📂 Estrutura do Projeto
+
+```
+TrackBox/
+
+index.php
+login.php
+register.php
+dashboard.php
+
+register_disk.php
+edit_disk.php
+disk_details.php
+search_disks.php
+
+config/
+   database.php
+   api_keys.php
+
+includes/
+   header.php
+   footer.php
+   functions.php
+
+api/
+   discogs_search.php
+   toggle_favorite.php
+
+assets/
+   css/
+   js/
+   img/
+
+uploads/
+   disks/
+
+sql/
+   trackbox_db.sql
+```
+
+---
+
+# 🔐 Segurança Implementada
+
+✔ Senhas criptografadas (**bcrypt**)
+✔ Proteção **CSRF**
+✔ Validação contra **SQL Injection**
+✔ Sessões seguras
+✔ Isolamento de dados por usuário
+
+---
+
+# 🌐 Integração Discogs
+
+Discogs é um enorme banco de dados musical com **milhões de discos catalogados**.
+
+TrackBox utiliza essa API para:
+
+* buscar discos
+* preencher dados automaticamente
+* baixar capas
+
+A integração **não é obrigatória**.
+
+---
+
+# 🎓 Projeto Acadêmico
+
+Este projeto foi desenvolvido para a disciplina de **Desenvolvimento Web**.
+
+Objetivos de aprendizado:
+
+* PHP Backend
+* MySQL
+* HTML e CSS
+* JavaScript
+* Integração com APIs
+* Segurança web
+* Estruturação de projetos reais
+
+---
+
+# ⚠️ Troubleshooting
+
+## Erro ao conectar ao banco
+
+* Verifique se **MySQL está rodando**
+* Confirme dados em `config/database.php`
+* Verifique se o banco `trackbox` existe
+
+---
+
+## Upload de imagens não funciona
+
+Verifique se a pasta existe:
+
+```
+uploads/disks
+```
+
+E se tem permissão de escrita.
+
+---
+
+## Erro 404
+
+Confirme que o servidor está rodando e que a URL está correta.
+
+---
+
+# 📞 Suporte
+
+Se encontrar problemas:
+
+* Abra uma **Issue no GitHub**
+* Consulte a documentação
+* Entre em contato com o desenvolvedor
+
+---
+
+# 📝 Licença
+
+Este projeto está sob a licença **MIT**.
+
+---
+
+# 👨‍💻 Autor
+
+Desenvolvido por **Rafael Tunes Mathiensen**
+
+TrackBox © 2025
